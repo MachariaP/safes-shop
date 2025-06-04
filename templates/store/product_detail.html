@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="py-5">
+   <div class="container">
+      <div class="row">
+	  <div class="col-lg-6 mb-4 mb-lg-0">
+             <img src="{{ product.image.url }}" class="img-fluid rounded shadow" alt="{{ product.name }}">
+	  </div>
+	  <div class="col-lg-6">
+	     <h1 class="display-5 mb-3">{{ product.name ))</h1>
+	     <p class="lead text-primary mb-4">Ksh {{ product.price }}</p>
+	     <p class="mb-4">{{ product.description }}</p>
+
+	     <div class="mb-5">
+		 <h4 class="mb-3">Specifications</h4>
+		 <ul class="list-group list-group-flush">
+		    {% for spec in product.specification.all %}
+		    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+		        <span>{{ spec.name }}</span>
+			<span class="text-dark">{{ spec.value }}</span>
+		    </li>
+		    {% endfor %}
+		 </ul>
+
+	     </div>
+
+	     <button class="btn btn-primary btn-lg w-100 py-3">Add to Cart</button>
+	  </div>
+      </div>
+   </div>
+</section>
+{% endblock %}
