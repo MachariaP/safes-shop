@@ -1,30 +1,55 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-<section class="py-5 bg-light">
-   <div class="container">
-      <h1 class="display-4 text-center mb-5">Diplomat Safes Collection</h1>
-      <div class="row">
-	  {% for product in products %}
-	  <div class="col-lg-4 col-md-6 mb-4">
-	     <div class="card h-100 border-0 shadow-sm">
-	        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
-		<div class="card-body">
-		   <h5 class="card_title">{{ product.name }}</h5>
-		   <p class="card-text">{{ product.description|truncatewords:20 }}</p>
-		</div>
-		<div class="card-footer bg-white border-0">
-		   <div class="d-flex justify-content-between align-items-center">
-		      <span class="h4 mb-0">Ksh {{ product.price }}</span>
-		      <a href="{{ product.get_absolute_url }}" class="btn btn-outline-primary">
-		        View Details
-		      </a>
-		   </div>
-		</div>
-	     </div>
-	  </div>
-	  {% endfor %}
-      </div>
-   </div>
+<section class="py-5 product-list-section">
+    <div class="container">
+        <h1 class="display-4 text-center mb-5">
+            {% if category %}
+                {{ category|title }} Safes
+            {% else %}
+                All Safes
+            {% endif %}
+        </h1>
+        <div class="row">
+            {% for product in products %}
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }} - {{ product.category|title }} Safe" style="height: 250px; object-fit: cover;">
+                    {% else %}
+                        <img src="https://via.placeholder.com/300" class="card-img-top" alt="No image available - {{ product.category|title }} Safe" style="height: 250px; object-fit: cover;">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name }} - {{ product.category|title }}</h5>
+                        <p class="card-text">{{ product.description|safe|truncatewords_html:20 }}</p>
+                    </div>
+                    <div class="card-footer bg-white border-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="h4 mb-0">Ksh {{ product.price }}</span>
+                            <a href="{% url 'store:product_detail' slug=product.slug %}" class="btn btn-outline-primary">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center">
+                <p class="text-muted">No products found in this category.</p>
+            </div>
+            {% endfor %}
+        </div>
+        <!-- Load More Button (Managed by product_list.js) -->
+        <div id="loadMoreContainer"></div>
+    </div>
 </section>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/product-list.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/product_list.js' %}"></script>
 {% endblock %}
