@@ -1,5 +1,4 @@
 // static/js/base.js
-
 document.addEventListener('DOMContentLoaded', () => {
     // Navbar scroll effect
     const navbar = document.querySelector('.navbar');
@@ -44,9 +43,34 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Sync localStorage cart with server on page load
+    const cart = JSON.parse(localStorage.getItem('cart')) || {};
+    if (Object.keys(cart).length > 0) {
+        fetch('{% url "store:update_cart" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken(),
+            },
+            body: JSON.stringify({ cart }),
+        })
+        .catch(error => console.error('Error syncing cart on load:', error));
+    }
+
     // Helper function for email validation
     function isValidEmail(email) {
         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return re.test(email);
+    }
+
+    // Helper function to get CSRF token
+    function getCSRFToken() {
+        const name = 'csrftoken';
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            const [key, value] = cookie.trim().split('=');
+            if (key === name) return value;
+        }
+        return '';
     }
 });
