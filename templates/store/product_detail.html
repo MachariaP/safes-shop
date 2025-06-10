@@ -14,7 +14,6 @@
                         <div class="image-placeholder">No image available</div>
                     {% endif %}
                 </div>
-                <!-- Image Gallery (Placeholder for future multiple images) -->
                 <div class="image-gallery px-3 pb-3">
                     {% if product.image %}
                         <img src="{{ product.image.url }}" alt="{{ product.name }} Thumbnail - {{ product.category|title }} Safe" class="gallery-thumb active" data-image="{{ product.image.url }}">
@@ -76,11 +75,11 @@
                         </div>
                     </div>
                     <div class="action-buttons">
-                        <button class="btn btn-primary" id="addToCart">
+                        <button class="btn btn-primary" id="addToCart" data-slug="{{ product.slug }}">
                             <i class="fas fa-shopping-cart"></i> Add to Cart
                         </button>
-                        <button class="btn btn-outline-primary">
-                            <i class="fas fa-heart"></i> Wishlist
+                        <button class="btn btn-outline-primary" id="addToWishlist" data-slug="{{ product.slug }}">
+                            <i class="fas fa-heart"></i> Add to Wishlist
                         </button>
                     </div>
                     <div class="product-meta">
@@ -108,6 +107,15 @@
         </div>
         <div class="toast-body">
             <strong>{{ product.name }} - {{ product.category|title }} Safe</strong> has been added to your shopping cart.
+        </div>
+    </div>
+    <div id="wishlistToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header bg-secondary text-white">
+            <strong class="me-auto"><i class="fas fa-heart me-2"></i>Wishlist Update</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="wishlistToastBody">
+            Update message will appear here.
         </div>
     </div>
 </div>
