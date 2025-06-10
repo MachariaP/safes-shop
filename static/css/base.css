@@ -114,11 +114,104 @@ h1, h2, h3, h4, h5, h6 {
     background-color: var(--secondary);
 }
 
+/* Cart Badge */
+.navbar .badge {
+    font-size: 0.75rem;
+    background-color: var(--primary);
+    top: -10px;
+    position: relative;
+}
+
 /* Main Content */
 main {
     flex: 1;
     padding-top: 30px;
     padding-bottom: 60px;
+}
+
+/* Cart Page Styles */
+.cart-table th, .cart-table td {
+    vertical-align: middle;
+    font-size: 0.95rem;
+}
+
+.cart-item-img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: var(--border-radius);
+}
+
+.quantity-input {
+    width: 80px;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--light-gray);
+    padding: 5px;
+    font-size: 0.9rem;
+}
+
+.btn-remove {
+    color: #dc3545;
+    background: none;
+    border: none;
+    font-size: 1.1rem;
+    transition: var(--transition);
+}
+
+.btn-remove:hover {
+    color: #a71d2a;
+    transform: scale(1.1);
+}
+
+.cart-summary {
+    background-color: var(--light);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    box-shadow: var(--box-shadow);
+}
+
+.cart-summary h4 {
+    font-size: 1.25rem;
+    color: var(--primary);
+}
+
+.btn-checkout {
+    background-color: var(--primary);
+    border: none;
+    padding: 10px 20px;
+    font-weight: 500;
+    color: white;
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+}
+
+.btn-checkout:hover {
+    background-color: #0d2a52;
+    transform: translateY(-2px);
+    box-shadow: var(--box-shadow);
+}
+
+.btn-continue-shopping {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.btn-continue-shopping:hover {
+    color: var(--secondary);
+    text-decoration: underline;
+}
+
+.empty-cart {
+    text-align: center;
+    padding: 50px 0;
+}
+
+.empty-cart i {
+    font-size: 3rem;
+    color: var(--gray);
+    margin-bottom: 20px;
 }
 
 /* Footer */
@@ -221,6 +314,16 @@ footer ul li {
     .social-icons a {
         margin: 0 5px;
     }
+    .cart-table {
+        font-size: 0.9rem;
+    }
+    .cart-item-img {
+        width: 60px;
+        height: 60px;
+    }
+    .quantity-input {
+        width: 70px;
+    }
 }
 
 @media (max-width: 767px) {
@@ -243,5 +346,12 @@ footer ul li {
     .footer .input-group .btn {
         margin-top: 10px;
         width: 100%;
+    }
+    .cart-table {
+        display: block;
+        overflow-x: auto;
+    }
+    .cart-summary {
+        margin-top: 20px;
     }
 }
