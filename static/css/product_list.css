@@ -1,0 +1,101 @@
+/* static/css/product-list.css */
+
+:root {
+    --primary: #1a3a6c;
+    --secondary: #c0a062;
+    --light: #f8f9fa;
+    --dark: #212529;
+    --gray: #6c757d;
+    --light-gray: #e9ecef;
+    --border-radius: 12px;
+    --box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    --transition: all 0.3s ease;
+}
+
+.product-list-section {
+    padding: 3rem 0;
+    background: var(--light);
+}
+
+.card {
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    transition: var(--transition);
+    overflow: hidden;
+    height: 100%;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+}
+
+.card-img-top {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+    transition: var(--transition);
+}
+
+.card:hover .card-img-top {
+    transform: scale(1.02);
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.card-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 0.8rem;
+    min-height: 3rem;
+}
+
+.card-text {
+    color: var(--gray);
+    font-size: 0.95rem;
+    min-height: 60px;
+    margin-bottom: 1rem;
+}
+
+.card-footer {
+    padding: 1rem;
+    background: white;
+    border-top: 1px solid var(--light-gray);
+}
+
+.btn-outline-primary {
+    border: 2px solid var(--primary);
+    color: var(--primary);
+    padding: 0.5rem 1.2rem;
+    font-weight: 600;
+    transition: var(--transition);
+    border-radius: 8px;
+}
+
+.btn-outline-primary:hover {
+    background: var(--primary);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.text-muted {
+    color: var(--gray) !important;
+}
+
+@media (max-width: 768px) {
+    .col-md-6 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    .card-img-top {
+        height: 200px;
+    }
+    .card-title {
+        font-size: 1.1rem;
+    }
+}
