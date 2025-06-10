@@ -1,19 +1,18 @@
-from django.cof import settings
+from django.conf import settings
 from .models import Referral
 from users.models import CustomUser
 
-def award_referral_points(user):
-    # Check if user was referred
-    try:
-        referral = Referral.objects.get(referee=user, points_awarded=False)
-        referral.points_awarded = True
-        referral.save()
-
-        # Award points (100 points = 1% discount)
-        referral.referrer.referral_points += 100
-        referral.referrer.save()
-    except Referral.DoesNotExist:
-        pass
+def award_referral_points(user, referral_code):
+    if referral_code:
+        try:
+            referrer = CustomUser.objects.get(referral_code=referral_code)
+            Referral.objects.create(referrer=referrer, referee=user)
+            referrer.referral_points += 10  # Example points
+            referrer.save()
+            user.referral_points += 5  # Example points for referee
+            user.save()
+        except CustomUser.DoesNotExist:
+            pass
 
 def apply_referral_discount(user, amount):
     points = user.referral_points
