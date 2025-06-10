@@ -1,33 +1,122 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-<section class="py-5">
-   <div class="container">
-      <div class="row">
-	  <div class="col-lg-6 mb-4 mb-lg-0">
-             <img src="{{ product.image.url }}" class="img-fluid rounded shadow" alt="{{ product.name }}">
-	  </div>
-	  <div class="col-lg-6">
-	     <h1 class="display-5 mb-3">{{ product.name ))</h1>
-	     <p class="lead text-primary mb-4">Ksh {{ product.price }}</p>
-	     <p class="mb-4">{{ product.description }}</p>
+<section class="py-5 product-detail-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <!-- Product Image -->
+            <div class="col-md-6">
+                <div class="product-image-container">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }} - {{ product.category|title }} Safe" class="product-image" id="mainProductImage">
+                    {% else %}
+                        <div class="image-placeholder">No image available</div>
+                    {% endif %}
+                </div>
+                <!-- Image Gallery (Placeholder for future multiple images) -->
+                <div class="image-gallery px-3 pb-3">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }} Thumbnail - {{ product.category|title }} Safe" class="gallery-thumb active" data-image="{{ product.image.url }}">
+                    {% else %}
+                        <img src="https://via.placeholder.com/200" alt="Placeholder Thumbnail - {{ product.category|title }} Safe" class="gallery-thumb active" data-image="https://via.placeholder.com/200">
+                    {% endif %}
+                </div>
+            </div>
 
-	     <div class="mb-5">
-		 <h4 class="mb-3">Specifications</h4>
-		 <ul class="list-group list-group-flush">
-		    {% for spec in product.specification.all %}
-		    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-		        <span>{{ spec.name }}</span>
-			<span class="text-dark">{{ spec.value }}</span>
-		    </li>
-		    {% endfor %}
-		 </ul>
-
-	     </div>
-
-	     <button class="btn btn-primary btn-lg w-100 py-3">Add to Cart</button>
-	  </div>
-      </div>
-   </div>
+            <!-- Product Details -->
+            <div class="col-md-6">
+                <div class="product-details">
+                    {% if product.is_in_stock %}
+                        <div class="stock-badge">
+                            <i class="fas fa-check-circle"></i> In Stock - Ready to Ship
+                        </div>
+                    {% else %}
+                        <div class="stock-badge badge-highlight">
+                            <i class="fas fa-exclamation-triangle"></i> Out of Stock
+                        </div>
+                    {% endif %}
+                    <h1 class="product-title">{{ product.name }} - {{ product.category|title }} Safe</h1>
+                    <div class="product-price">Ksh {{ product.price }}</div>
+                    <div class="product-description">
+                        {{ product.description|safe }}
+                        <p><strong>Category:</strong> {{ product.category|title }} Safe - Designed for {{ product.category|lower }} use with top-tier security.</p>
+                    </div>
+                    <div class="specs-container">
+                        <h4 class="specs-title">Specifications</h4>
+                        <ul class="specs-list">
+                            {% if product.ivory_color %}
+                                <li>
+                                    <span class="specs-icon"><i class="fas fa-paint-brush"></i></span>
+                                    <span>Ivory Color: <strong>Yes</strong></span>
+                                </li>
+                            {% endif %}
+                            <li>
+                                <span class="specs-icon"><i class="fas fa-dollar-sign"></i></span>
+                                <span>Price: <strong>Ksh {{ product.price }}</strong></span>
+                            </li>
+                            {% if product.category == 'fireproof' %}
+                                <li>
+                                    <span class="specs-icon"><i class="fas fa-fire"></i></span>
+                                    <span>Fire Rating: <strong>Up to 1000°C for 60 min</strong></span>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    <div class="quantity-selector">
+                        <span class="quantity-label">Quantity:</span>
+                        <div class="quantity-control">
+                            <button class="quantity-btn" id="decreaseQty">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <input type="number" class="quantity-input" id="productQty" value="1" min="1" max="10">
+                            <button class="quantity-btn" id="increaseQty">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" id="addToCart">
+                            <i class="fas fa-shopping-cart"></i> Add to Cart
+                        </button>
+                        <button class="btn btn-outline-primary">
+                            <i class="fas fa-heart"></i> Wishlist
+                        </button>
+                    </div>
+                    <div class="product-meta">
+                        <div class="meta-item">
+                            <span class="meta-icon"><i class="fas fa-truck"></i></span>
+                            <span>Free Shipping & Returns</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-icon"><i class="fas fa-shield-alt"></i></span>
+                            <span>2-Year Warranty</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </section>
+
+<!-- Toast Notification -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="cartToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header bg-primary text-white">
+            <strong class="me-auto"><i class="fas fa-check-circle me-2"></i>Added to Cart</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            <strong>{{ product.name }} - {{ product.category|title }} Safe</strong> has been added to your shopping cart.
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/product-detail.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/product-detail.js' %}"></script>
 {% endblock %}
