@@ -5,7 +5,7 @@ from .models import CustomUser
 
 class CustomUserCreationForm(UserCreationForm):
     phone_number = forms.CharField(max_length=15, required=False)
-    referral code = forms.CharField(max_length=36, required=False,
+    referral_code = forms.CharField(max_length=36, required=False,
                                     label='Referral Code (optional)')
 
 
