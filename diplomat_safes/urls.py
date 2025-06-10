@@ -13,10 +13,23 @@ Class-based views
 Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+
 """
+
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+from store import views
+from store.views import product_list
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-]
+    path('', product_list, name='home'),  # Homepage maps to store's product_list view
+    path('newsletter/signup/', views.newsletter_signup, name='newsletter_signup'),
+    path('store/', include('store.urls')),  # Store app URLs
+    path('users/', include('users.urls')),  # Users app URLs
+    path('payments/', include('payments.urls')),  # Payments app URLs
+    path('referrals/', include('referrals.urls')),  # Referrals app URLs
+    path('admin/', admin.site.urls),  # Admin interface
+    path('accounts/', include('allauth.urls')),  # django-allauth URLs
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)  # Serve media files in development
