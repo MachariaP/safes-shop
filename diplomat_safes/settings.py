@@ -2,11 +2,11 @@ import environ
 import os
 from pathlib import Path
 
+BASE_DIR = Path(__file__).resolve().parent.parent
+
 # Initialize environment
 env = environ.Env()
-environ.Env.read_env()
-
-BASE_DIR = Path(__file__).resolve().parent.parent
+env.read_env(BASE_DIR / '.env')
 
 SECRET_KEY = env('SECRET_KEY')
 DEBUG = env.bool('DEBUG', default=False)
@@ -29,7 +29,11 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'crispy_forms',
+    'ckeditor',
+
 ]
+
+SITE_ID = 1  # Required for allauth
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -74,6 +78,8 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
+AUTH_USER_MODEL = 'users.CustomUser'
+
 SITE_ID = 1
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 LOGIN_REDIRECT_URL = '/'
@@ -81,7 +87,7 @@ LOGOUT_REDIRECT_URL = '/'
 
 # Static files
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 MEDIA_URL = '/media/'
@@ -89,6 +95,20 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # Crispy Forms
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+CKEDITOR_CONFIGS = {
+    'default': {
+        'allowedContent': True,
+        'toolbar': 'Full',
+        'contentsCss': '/static/css/ckeditor.css',
+        'autoParagraph': False,
+        'basicEntities': False,
+        'entities': False,
+        'entities_latin': False,
+        'htmlEncodeOutput': False,
+        'forcePasteAsPlainText': False,
+    }
+}
 
 # MPesa configuration
 MPESA_CONFIG = {
