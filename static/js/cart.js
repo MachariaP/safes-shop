@@ -1,3 +1,4 @@
+// static/js/cart.js
 document.addEventListener('DOMContentLoaded', () => {
     const cartBadge = document.getElementById('cartBadge');
     const quantityInputs = document.querySelectorAll('.quantity-input');
@@ -16,20 +17,17 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateCartBadge() {
         const cart = getCart();
         let itemCount = 0;
-        
         for (const slug in cart) {
             itemCount += cart[slug].quantity;
         }
-        
         if (cartBadge) {
             cartBadge.textContent = itemCount;
         }
-        
         window.dispatchEvent(new Event('cartUpdated'));
     }
 
     function syncCartWithServer(cart) {
-        fetch('{% url "store:update_cart" %}', {
+        fetch('/store/update-cart/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -38,6 +36,11 @@ document.addEventListener('DOMContentLoaded', () => {
             body: JSON.stringify({ cart }),
         })
         .then(response => response.json())
+        .then(data => {
+            if (data.status !== 'success') {
+                console.error('Error syncing cart:', data.message);
+            }
+        })
         .catch(error => console.error('Error syncing cart:', error));
     }
 
@@ -50,6 +53,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return '';
     }
+
+    // Fetch server-side cart on page load to initialize localStorage
+    fetch('/store/cart/', {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        let cart = getCart();
+        data.cart_items.forEach(item => {
+            cart[item.product.slug] = {
+                quantity: item.quantity,
+                price: item.price.toString(),
+            };
+        });
+        saveCart(cart);
+    })
+    .catch(error => console.error('Error fetching cart:', error));
 
     // Handle quantity changes
     quantityInputs.forEach(input => {
