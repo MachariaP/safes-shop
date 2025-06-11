@@ -59,6 +59,7 @@ def product_list(request, category=None):
 
 def product_detail(request, slug):
     product = get_object_or_404(SafeProduct, slug=slug)
+    logger.debug(f"Viewing product detail: {slug}")
     return render(request, 'store/product_detail.html', {'product': product})
 
 def add_to_cart(request, slug):
@@ -66,17 +67,19 @@ def add_to_cart(request, slug):
         product = get_object_or_404(SafeProduct, slug=slug)
         quantity = int(request.POST.get('quantity', 1))
         cart = request.session.get('cart', {})
-        cart_item = {'quantity': quantity, 'price': str(product.price)}
-        cart[product.slug] = cart_item
+        if slug in cart:
+            cart[slug]['quantity'] += quantity
+        else:
+            cart[slug] = {'quantity': quantity, 'price': str(product.price)}
         request.session['cart'] = cart
         request.session.modified = True
-        logger.debug(f"Added to cart: {product.slug}, Quantity: {quantity}, Session Cart: {cart}")
+        logger.debug(f"Added to cart: {slug}, Quantity: {quantity}, Session Cart: {cart}")
         return JsonResponse({
             'status': 'success',
             'message': f"{product.name} added to cart",
             'price': str(product.price),
         })
-    return JsonResponse({'status': 'error', 'message': 'Invalid request'})
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
 
 def add_to_wishlist(request, slug):
     if request.method == 'POST':
@@ -86,7 +89,7 @@ def add_to_wishlist(request, slug):
             wishlist.append(product.slug)
             request.session['wishlist'] = wishlist
             request.session.modified = True
-            logger.debug(f"Added to wishlist: {product.slug}, Wishlist: {wishlist}")
+            logger.debug(f"Added to wishlist: {slug}, Wishlist: {wishlist}")
             return JsonResponse({
                 'status': 'success',
                 'message': f"{product.name} added to wishlist",
@@ -96,13 +99,13 @@ def add_to_wishlist(request, slug):
             wishlist.remove(product.slug)
             request.session['wishlist'] = wishlist
             request.session.modified = True
-            logger.debug(f"Removed from wishlist: {product.slug}, Wishlist: {wishlist}")
+            logger.debug(f"Removed from wishlist: {slug}, Wishlist: {wishlist}")
             return JsonResponse({
                 'status': 'success',
                 'message': f"{product.name} removed from wishlist",
                 'action': 'removed'
             })
-    return JsonResponse({'status': 'error', 'message': 'Invalid request'})
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
 
 def newsletter_signup(request):
     if request.method == 'POST':
@@ -125,6 +128,8 @@ def cart_view(request):
     cart_count = 0
     invalid_slugs = []
 
+    logger.debug(f"Fetching cart: {cart}")
+
     for slug, item in list(cart.items()):
         try:
             product = SafeProduct.objects.get(slug=slug)
@@ -141,15 +146,13 @@ def cart_view(request):
         except SafeProduct.DoesNotExist:
             invalid_slugs.append(slug)
 
-    # Clean up invalid cart items
     if invalid_slugs:
         for slug in invalid_slugs:
             del cart[slug]
         request.session['cart'] = cart
         request.session.modified = True
-        logger.debug(f"Removed invalid slugs from cart: {invalid_slugs}")
+        logger.debug(f"Removed invalid slugs: {invalid_slugs}")
 
-    # Handle AJAX request for cart data
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return JsonResponse({
             'status': 'success',
@@ -169,7 +172,7 @@ def cart_view(request):
         'total_price': total_price,
         'cart_count': cart_count,
     }
-    logger.debug(f"Rendering cart view: Items: {len(cart_items)}, Total Price: {total_price}")
+    logger.debug(f"Rendering cart view: {len(cart_items)} items, Total: ${total_price}")
     return render(request, 'store/cart.html', context)
 
 @require_POST
@@ -179,13 +182,16 @@ def update_cart(request):
         client_cart = data.get('cart', {})
         server_cart = request.session.get('cart', {})
 
-        # Merge client and server carts (client takes precedence for quantities)
         for slug, item in client_cart.items():
             if isinstance(item, dict) and 'quantity' in item and 'price' in item:
-                server_cart[slug] = {
-                    'quantity': item['quantity'],
-                    'price': item['price']
-                }
+                try:
+                    product = SafeProduct.objects.get(slug=slug)
+                    server_cart[slug] = {
+                        'quantity': int(item['quantity']),
+                        'price': str(product.price),  # Ensure price matches product
+                    }
+                except SafeProduct.DoesNotExist:
+                    continue
 
         # Remove items not in client cart
         server_cart = {slug: server_cart[slug] for slug in client_cart if slug in server_cart}
@@ -231,18 +237,16 @@ class CheckoutView(View):
             messages.error(request, "Your cart is empty.")
             return redirect('store:cart')
         
-        # Create order
         try:
             order = Order.objects.create(
                 session_key=request.session.session_key,
-                total_price=request.POST.get('total_price'),
+                total_price=float(request.POST.get('total_price')),
                 payment_method=request.POST.get('payment_method'),
                 contact_email=request.POST.get('email'),
                 contact_phone=request.POST.get('phone'),
                 shipping_address=request.POST.get('address')
             )
             
-            # Create order items
             for slug, item in cart.items():
                 try:
                     product = SafeProduct.objects.get(slug=slug)
@@ -250,16 +254,14 @@ class CheckoutView(View):
                         order=order,
                         product=product,
                         quantity=item['quantity'],
-                        price=item['price']
+                        price=float(item['price'])
                     )
                 except SafeProduct.DoesNotExist:
                     continue
             
-            # Clear cart
             request.session['cart'] = {}
             request.session.modified = True
-            logger.debug(f"Cleared cart after order creation: Order #{order.id}")
-            
+            logger.debug(f"Order #{order.id} created, cart cleared")
             messages.success(request, "Order placed successfully!")
             return redirect('store:order_confirmation', order_id=order.id)
         except Exception as e:
@@ -270,3 +272,10 @@ class CheckoutView(View):
 def order_confirmation(request, order_id):
     order = get_object_or_404(Order, id=order_id)
     return render(request, 'store/order_confirmation.html', {'order': order})
+
+def debug_session(request):
+    return JsonResponse({
+        'session_cart': request.session.get('cart', {}),
+        'session_wishlist': request.session.get('wishlist', []),
+        'session_key': request.session.session_key,
+    })
