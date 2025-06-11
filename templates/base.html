@@ -174,21 +174,28 @@
         document.addEventListener('DOMContentLoaded', () => {
             const cartBadge = document.getElementById('cartBadge');
 
-            // Function to update cart badge
             function updateCartBadge() {
                 const cart = JSON.parse(localStorage.getItem('cart')) || {};
                 let itemCount = 0;
                 for (const slug in cart) {
                     itemCount += cart[slug].quantity;
                 }
-                cartBadge.textContent = itemCount;
+                if (cartBadge) {
+                    cartBadge.textContent = itemCount;
+                }
             }
 
             // Initial update
             updateCartBadge();
 
-            // Listen for custom event from other scripts
+            // Listen for cart updates
             window.addEventListener('cartUpdated', updateCartBadge);
+
+            // Clear localStorage after checkout
+            if (window.location.pathname.includes('/store/order-confirmation/')) {
+                localStorage.removeItem('cart');
+                updateCartBadge();
+            }
         });
     </script>
 </body>
