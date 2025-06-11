@@ -176,7 +176,7 @@ def cart_view(request):
         'total_price': total_price,
         'cart_count': cart_count,
     }
-    logger.debug(f"Rendering cart view: {len(cart_items)} items, Total: ${total_price}, Session Key: {request.session.session_key}")
+    logger.debug(f"Rendering cart view: {len(cart_items)} items, Total: Ksh {total_price}, Session Key: {request.session.session_key}")
     return render(request, 'store/cart.html', context)
 
 @require_POST
@@ -191,7 +191,7 @@ def update_cart(request):
                 try:
                     product = SafeProduct.objects.get(slug=slug)
                     if float(item['price']) != float(product.price):
-                        logger.warning(f"Price mismatch for {slug}: Client ${item['price']}, Server ${product.price}")
+                        logger.warning(f"Price mismatch for {slug}: Client Ksh {item['price']}, Server Ksh {product.price}")
                     server_cart[slug] = {
                         'quantity': max(1, int(item['quantity'])),
                         'price': str(product.price),  # Use server price
