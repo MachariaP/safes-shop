@@ -41,7 +41,7 @@
                         </div>
                     {% endif %}
                     <h1 class="product-title">{{ product.name }} - {{ product.category|title }} Safe</h1>
-                    <div class="product-price">${{ product.price|floatformat:2 }}</div>
+                    <div class="product-price">Ksh {{ product.price|floatformat:2 }}</div>
                     <div class="product-description">
                         {{ product.description|safe }}
                         <p><strong>Category:</strong> {{ product.category|title }} Safe - Designed for {{ product.category|lower }} use with top-tier security.</p>
@@ -57,7 +57,7 @@
                             {% endif %}
                             <li>
                                 <span class="specs-icon"><i class="fas fa-dollar-sign"></i></span>
-                                <span>Price: <strong>${{ product.price|floatformat:2 }}</strong></span>
+                                <span>Price: <strong>Ksh {{ product.price|floatformat:2 }}</strong></span>
                             </li>
                             {% if product.category == 'fireproof' %}
                                 <li>
