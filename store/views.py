@@ -66,6 +66,8 @@ def add_to_cart(request, slug):
     if request.method == 'POST':
         product = get_object_or_404(SafeProduct, slug=slug)
         quantity = int(request.POST.get('quantity', 1))
+        if quantity < 1:
+            quantity = 1
         cart = request.session.get('cart', {})
         if slug in cart:
             cart[slug]['quantity'] += quantity
@@ -73,12 +75,13 @@ def add_to_cart(request, slug):
             cart[slug] = {'quantity': quantity, 'price': str(product.price)}
         request.session['cart'] = cart
         request.session.modified = True
-        logger.debug(f"Added to cart: {slug}, Quantity: {quantity}, Session Cart: {cart}")
+        logger.debug(f"Added to cart: {slug}, Quantity: {quantity}, Session Cart: {cart}, Session Key: {request.session.session_key}")
         return JsonResponse({
             'status': 'success',
             'message': f"{product.name} added to cart",
             'price': str(product.price),
         })
+    logger.warning(f"Invalid add_to_cart request for {slug}")
     return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
 
 def add_to_wishlist(request, slug):
@@ -89,7 +92,7 @@ def add_to_wishlist(request, slug):
             wishlist.append(product.slug)
             request.session['wishlist'] = wishlist
             request.session.modified = True
-            logger.debug(f"Added to wishlist: {slug}, Wishlist: {wishlist}")
+            logger.debug(f"Added to wishlist: {slug}, Wishlist: {wishlist}, Session Key: {request.session.session_key}")
             return JsonResponse({
                 'status': 'success',
                 'message': f"{product.name} added to wishlist",
@@ -99,12 +102,13 @@ def add_to_wishlist(request, slug):
             wishlist.remove(product.slug)
             request.session['wishlist'] = wishlist
             request.session.modified = True
-            logger.debug(f"Removed from wishlist: {slug}, Wishlist: {wishlist}")
+            logger.debug(f"Removed from wishlist: {slug}, Wishlist: {wishlist}, Session Key: {request.session.session_key}")
             return JsonResponse({
                 'status': 'success',
                 'message': f"{product.name} removed from wishlist",
                 'action': 'removed'
             })
+    logger.warning(f"Invalid add_to_wishlist request for {slug}")
     return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
 
 def newsletter_signup(request):
@@ -128,7 +132,7 @@ def cart_view(request):
     cart_count = 0
     invalid_slugs = []
 
-    logger.debug(f"Fetching cart: {cart}")
+    logger.debug(f"Fetching cart: {cart}, Session Key: {request.session.session_key}")
 
     for slug, item in list(cart.items()):
         try:
@@ -151,7 +155,7 @@ def cart_view(request):
             del cart[slug]
         request.session['cart'] = cart
         request.session.modified = True
-        logger.debug(f"Removed invalid slugs: {invalid_slugs}")
+        logger.debug(f"Removed invalid slugs: {invalid_slugs}, Session Key: {request.session.session_key}")
 
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return JsonResponse({
@@ -172,7 +176,7 @@ def cart_view(request):
         'total_price': total_price,
         'cart_count': cart_count,
     }
-    logger.debug(f"Rendering cart view: {len(cart_items)} items, Total: ${total_price}")
+    logger.debug(f"Rendering cart view: {len(cart_items)} items, Total: ${total_price}, Session Key: {request.session.session_key}")
     return render(request, 'store/cart.html', context)
 
 @require_POST
@@ -186,11 +190,14 @@ def update_cart(request):
             if isinstance(item, dict) and 'quantity' in item and 'price' in item:
                 try:
                     product = SafeProduct.objects.get(slug=slug)
+                    if float(item['price']) != float(product.price):
+                        logger.warning(f"Price mismatch for {slug}: Client ${item['price']}, Server ${product.price}")
                     server_cart[slug] = {
-                        'quantity': int(item['quantity']),
-                        'price': str(product.price),  # Ensure price matches product
+                        'quantity': max(1, int(item['quantity'])),
+                        'price': str(product.price),  # Use server price
                     }
                 except SafeProduct.DoesNotExist:
+                    logger.warning(f"Invalid slug in update_cart: {slug}")
                     continue
 
         # Remove items not in client cart
@@ -198,10 +205,10 @@ def update_cart(request):
 
         request.session['cart'] = server_cart
         request.session.modified = True
-        logger.debug(f"Updated cart: {server_cart}")
+        logger.debug(f"Updated cart via update_cart: {server_cart}, Session Key: {request.session.session_key}")
         return JsonResponse({'status': 'success'})
     except Exception as e:
-        logger.error(f"Error updating cart: {str(e)}")
+        logger.error(f"Error updating cart: {str(e)}, Session Key: {request.session.session_key}")
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
 
 class CheckoutView(View):
@@ -261,11 +268,11 @@ class CheckoutView(View):
             
             request.session['cart'] = {}
             request.session.modified = True
-            logger.debug(f"Order #{order.id} created, cart cleared")
+            logger.debug(f"Order #{order.id} created, cart cleared, Session Key: {request.session.session_key}")
             messages.success(request, "Order placed successfully!")
             return redirect('store:order_confirmation', order_id=order.id)
         except Exception as e:
-            logger.error(f"Error processing order: {str(e)}")
+            logger.error(f"Error processing order: {str(e)}, Session Key: {request.session.session_key}")
             messages.error(request, f"Error processing order: {str(e)}")
             return redirect('store:checkout')
 
