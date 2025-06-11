@@ -43,18 +43,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Sync localStorage cart with server on page load
-    const cart = JSON.parse(localStorage.getItem('cart')) || {};
-    if (Object.keys(cart).length > 0) {
-        fetch('{% url "store:update_cart" %}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCSRFToken(),
-            },
-            body: JSON.stringify({ cart }),
-        })
-        .catch(error => console.error('Error syncing cart on load:', error));
+    // Update cart badge
+    function updateCartBadge() {
+        const cart = JSON.parse(localStorage.getItem('cart')) || {};
+        const cartBadge = document.getElementById('cartBadge');
+        let itemCount = 0;
+        for (const slug in cart) {
+            itemCount += cart[slug].quantity;
+        }
+        if (cartBadge) {
+            cartBadge.textContent = itemCount;
+        }
+    }
+
+    // Initial badge update
+    updateCartBadge();
+
+    // Listen for cart updates from other scripts
+    window.addEventListener('cartUpdated', updateCartBadge);
+
+    // Clear localStorage after checkout
+    if (window.location.pathname.includes('/store/order-confirmation/')) {
+        localStorage.removeItem('cart');
+        updateCartBadge();
     }
 
     // Helper function for email validation
