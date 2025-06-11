@@ -177,7 +177,10 @@
             // Function to update cart badge
             function updateCartBadge() {
                 const cart = JSON.parse(localStorage.getItem('cart')) || {};
-                const itemCount = Object.keys(cart).length;
+                let itemCount = 0;
+                for (const slug in cart) {
+                    itemCount += cart[slug].quantity;
+                }
                 cartBadge.textContent = itemCount;
             }
 
