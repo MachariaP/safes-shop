@@ -14,4 +14,6 @@ urlpatterns = [
     path('add-to-wishlist/<str:slug>/', views.add_to_wishlist, name='add_to_wishlist'),
     path('cart/', views.cart_view, name='cart'),
     path('update-cart/', views.update_cart, name='update_cart'),
+    path('checkout/', views.CheckoutView.as_view(), name='checkout'),
+    path('order-confirmation/<int:order_id>/', views.order_confirmation, name='order_confirmation'),
 ]
