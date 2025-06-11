@@ -15,10 +15,10 @@ class SafeProduct(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     category = models.CharField(max_length=50, choices=[
-        ('home_commercial', 'Home/Commercial'),
+        ('home', 'Home/Commercial'),
         ('cabinet', 'Cabinet'),
         ('wall', 'Wall'),
-    ], default='home_commercial')
+    ], default='home')
 
     class Meta:
         ordering = ['name']
