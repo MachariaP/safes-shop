@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
 from django.views.decorators.http import require_POST
 from django.template.loader import render_to_string
 from django.core.paginator import Paginator
@@ -17,8 +17,14 @@ def product_list(request, category=None):
         return render(request, 'home.html')
 
     products = SafeProduct.objects.all()
+    valid_categories = SafeProduct.objects.values('category').distinct().values_list('category', flat=True)
+
     if category:
+        if category.lower() not in [cat.lower() for cat in valid_categories]:
+            logger.warning(f"Invalid category: {category}")
+            raise Http404(f"Category '{category}' not found")
         products = products.filter(category__iexact=category)
+        logger.debug(f"Filtering products by category: {category}")
 
     # Handle sorting
     sort = request.GET.get('sort', 'name')
@@ -32,29 +38,38 @@ def product_list(request, category=None):
         products = products.order_by('name')
 
     # Categories for filter
-    categories = SafeProduct.objects.values('category').distinct()
+    categories = valid_categories
 
     # Pagination
-    paginator = Paginator(products, 8)  # 8 products per page
-    page_number = request.GET.get('page', 1)
-    page_obj = paginator.get_page(page_number)
+    page_obj = None
+    if products.exists():
+        paginator = Paginator(products, 8)  # 8 products per page
+        page_number = request.GET.get('page', 1)
+        try:
+            page_obj = paginator.get_page(page_number)
+        except:
+            logger.warning(f"Invalid page number: {page_number} for category: {category}")
+            page_obj = paginator.get_page(1)  # Fallback to page 1
+    else:
+        logger.debug(f"No products found for category: {category}")
 
     # Handle AJAX requests
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         html = render_to_string('store/partials/product_card.html', {
-            'products': page_obj.object_list,
+            'products': page_obj.object_list if page_obj else [],
         }, request=request)
         return JsonResponse({
             'html': html,
-            'products': list(page_obj.object_list.values('id')),
+            'products': list(page_obj.object_list.values('id')) if page_obj else [],
         })
 
     context = {
-        'products': page_obj.object_list,
+        'products': page_obj.object_list if page_obj else [],
         'page_obj': page_obj,
         'category': category,
-        'categories': [{'name': cat['category']} for cat in categories],
+        'categories': [{'name': cat} for cat in categories],
     }
+    logger.debug(f"Rendering product list: {len(context['products'])} products, Category: {category}")
     return render(request, 'store/product_list.html', context)
 
 def product_detail(request, slug):
