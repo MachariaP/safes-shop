@@ -6,7 +6,11 @@ from django.template.loader import render_to_string
 from django.core.paginator import Paginator
 from django.views.generic import View
 import json
+import logging
 from .models import SafeProduct, StoreLocation, CartItem, WishlistItem, Order, OrderItem
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 def product_list(request, category=None):
     if request.path == '/':
@@ -66,6 +70,7 @@ def add_to_cart(request, slug):
         cart[product.slug] = cart_item
         request.session['cart'] = cart
         request.session.modified = True
+        logger.debug(f"Added to cart: {product.slug}, Quantity: {quantity}, Session Cart: {cart}")
         return JsonResponse({
             'status': 'success',
             'message': f"{product.name} added to cart",
@@ -81,6 +86,7 @@ def add_to_wishlist(request, slug):
             wishlist.append(product.slug)
             request.session['wishlist'] = wishlist
             request.session.modified = True
+            logger.debug(f"Added to wishlist: {product.slug}, Wishlist: {wishlist}")
             return JsonResponse({
                 'status': 'success',
                 'message': f"{product.name} added to wishlist",
@@ -90,6 +96,7 @@ def add_to_wishlist(request, slug):
             wishlist.remove(product.slug)
             request.session['wishlist'] = wishlist
             request.session.modified = True
+            logger.debug(f"Removed from wishlist: {product.slug}, Wishlist: {wishlist}")
             return JsonResponse({
                 'status': 'success',
                 'message': f"{product.name} removed from wishlist",
@@ -130,7 +137,7 @@ def cart_view(request):
                 'image': product.image.url if product.image else 'https://via.placeholder.com/80',
             })
             total_price += item_total
-            cart_count += item['quantity']  # Use quantity for accurate count
+            cart_count += item['quantity']
         except SafeProduct.DoesNotExist:
             invalid_slugs.append(slug)
 
@@ -140,23 +147,55 @@ def cart_view(request):
             del cart[slug]
         request.session['cart'] = cart
         request.session.modified = True
+        logger.debug(f"Removed invalid slugs from cart: {invalid_slugs}")
+
+    # Handle AJAX request for cart data
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({
+            'status': 'success',
+            'cart_items': [{
+                'product': {'slug': item['product'].slug, 'name': item['product'].name},
+                'quantity': item['quantity'],
+                'price': item['price'],
+                'total': item['total'],
+                'image': item['image'],
+            } for item in cart_items],
+            'total_price': total_price,
+            'cart_count': cart_count,
+        })
 
     context = {
         'cart_items': cart_items,
         'total_price': total_price,
         'cart_count': cart_count,
     }
+    logger.debug(f"Rendering cart view: Items: {len(cart_items)}, Total Price: {total_price}")
     return render(request, 'store/cart.html', context)
 
 @require_POST
 def update_cart(request):
     try:
         data = json.loads(request.body)
-        cart = data.get('cart', {})
-        request.session['cart'] = cart
+        client_cart = data.get('cart', {})
+        server_cart = request.session.get('cart', {})
+
+        # Merge client and server carts (client takes precedence for quantities)
+        for slug, item in client_cart.items():
+            if isinstance(item, dict) and 'quantity' in item and 'price' in item:
+                server_cart[slug] = {
+                    'quantity': item['quantity'],
+                    'price': item['price']
+                }
+
+        # Remove items not in client cart
+        server_cart = {slug: server_cart[slug] for slug in client_cart if slug in server_cart}
+
+        request.session['cart'] = server_cart
         request.session.modified = True
+        logger.debug(f"Updated cart: {server_cart}")
         return JsonResponse({'status': 'success'})
     except Exception as e:
+        logger.error(f"Error updating cart: {str(e)}")
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
 
 class CheckoutView(View):
@@ -219,10 +258,12 @@ class CheckoutView(View):
             # Clear cart
             request.session['cart'] = {}
             request.session.modified = True
+            logger.debug(f"Cleared cart after order creation: Order #{order.id}")
             
             messages.success(request, "Order placed successfully!")
             return redirect('store:order_confirmation', order_id=order.id)
         except Exception as e:
+            logger.error(f"Error processing order: {str(e)}")
             messages.error(request, f"Error processing order: {str(e)}")
             return redirect('store:checkout')
 
