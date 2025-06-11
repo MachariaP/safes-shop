@@ -64,6 +64,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const formData = new FormData(addToCartForm);
             const actionUrl = addToCartForm.getAttribute('action');
             const addToCartBtn = document.getElementById('addToCart');
+            const slug = addToCartBtn.dataset.slug;
+            const quantity = parseInt(formData.get('quantity'));
 
             fetch(actionUrl, {
                 method: 'POST',
@@ -76,6 +78,12 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
+                    // Update localStorage
+                    let cart = JSON.parse(localStorage.getItem('cart')) || {};
+                    cart[slug] = { quantity: (cart[slug]?.quantity || 0) + quantity, price: data.price };
+                    localStorage.setItem('cart', JSON.stringify(cart));
+
+                    // Show toast and update button
                     cartToast.show();
                     addToCartBtn.innerHTML = '<i class="fas fa-check"></i> Added';
                     addToCartBtn.classList.add('btn-success');
@@ -89,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Update cart badge
                     const cartBadge = document.getElementById('cartBadge');
                     if (cartBadge) {
-                        cartBadge.textContent = parseInt(cartBadge.textContent || 0) + parseInt(formData.get('quantity'));
+                        cartBadge.textContent = parseInt(cartBadge.textContent || 0) + quantity;
                     }
                     window.dispatchEvent(new Event('cartUpdated'));
                 } else {
@@ -123,6 +131,18 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
+                    // Update localStorage wishlist
+                    let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+                    if (data.action === 'added') {
+                        if (!wishlist.includes(addToWishlistBtn.dataset.slug)) {
+                            wishlist.push(addToWishlistBtn.dataset.slug);
+                        }
+                    } else {
+                        wishlist = wishlist.filter(slug => slug !== addToWishlistBtn.dataset.slug);
+                    }
+                    localStorage.setItem('wishlist', JSON.stringify(wishlist));
+
+                    // Show toast and update button
                     wishlistToastBody.textContent = data.message;
                     wishlistToast.show();
                     if (data.action === 'added') {
