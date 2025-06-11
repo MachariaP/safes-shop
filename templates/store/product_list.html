@@ -1,55 +1,57 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/product_list.css' %}">
+{% endblock %}
+
 {% block content %}
-<section class="py-5 product-list-section">
+<section class="product-list-section">
     <div class="container">
-        <h1 class="display-4 text-center mb-5">
-            {% if category %}
-                {{ category|title }} Safes
-            {% else %}
-                All Safes
-            {% endif %}
-        </h1>
+        <h2 class="text-center mb-5">Our Products</h2>
         <div class="row">
             {% for product in products %}
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    {% if product.image %}
-                        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }} - {{ product.category|title }} Safe" style="height: 250px; object-fit: cover;">
-                    {% else %}
-                        <img src="https://via.placeholder.com/300" class="card-img-top" alt="No image available - {{ product.category|title }} Safe" style="height: 250px; object-fit: cover;">
-                    {% endif %}
+            <div class="col-md-6 col-lg-3 mb-4">
+                <div class="card">
+                    <img src="{{ product.image.url|default:'https://via.placeholder.com/250' }}" class="card-img-top" alt="{{ product.name }}">
                     <div class="card-body">
-                        <h5 class="card-title">{{ product.name }} - {{ product.category|title }}</h5>
-                        <p class="card-text">{{ product.description|safe|truncatewords_html:20 }}</p>
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text">{{ product.description|truncatewords:20|safe }}</p>
+                        <p class="text-muted">${{ product.price|floatformat:2 }}</p>
                     </div>
-                    <div class="card-footer bg-white border-0">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="h4 mb-0">Ksh {{ product.price }}</span>
-                            <a href="{% url 'store:product_detail' slug=product.slug %}" class="btn btn-outline-primary">
-                                View Details
-                            </a>
-                        </div>
+                    <div class="card-footer">
+                        <a href="{% url 'store:product_detail' product.slug %}" class="btn btn-outline-primary w-100">View Details</a>
                     </div>
                 </div>
             </div>
             {% empty %}
             <div class="col-12 text-center">
-                <p class="text-muted">No products found in this category.</p>
+                <p>No products found.</p>
             </div>
             {% endfor %}
         </div>
-        <!-- Load More Button (Managed by product_list.js) -->
-        <div id="loadMoreContainer"></div>
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">&laquo;</a>
+                </li>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% endfor %}
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">&raquo;</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
     </div>
 </section>
-{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/product-list.css' %}">
-{% endblock %}
-
-{% block extra_js %}
-<script src="{% static 'js/product_list.js' %}"></script>
 {% endblock %}
