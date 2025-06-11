@@ -5,8 +5,8 @@ app_name = 'store'
 
 urlpatterns = [
     path('', views.product_list, name='product_list'),
-    path('<str:category>/', views.product_list, name='category_product_list'),
-    path('product-<str:slug>/', views.product_detail, name='product_detail'),
+    path('product-<str:slug>/', views.product_detail, name='product_detail'),  # Moved before category
+    path('category/<str:category>/', views.product_list, name='category_product_list'),  # Added prefix
     path('add-to-cart/<str:slug>/', views.add_to_cart, name='add_to_cart'),
     path('add-to-wishlist/<str:slug>/', views.add_to_wishlist, name='add_to_wishlist'),
     path('cart/', views.cart_view, name='cart'),
