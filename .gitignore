@@ -1,7 +1,32 @@
+# Virtual environment
+d-safe/
+
+# Python cache and bytecode
 __pycache__/
-*.sqlite3
-.env
-*.pyc
-venv/
-media/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Django-specific
+*.log
+debug.log
 staticfiles/
+media/
+
+# Python package metadata
+*.egg-info/
+dist/
+build/
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# macOS
+.DS_Store
+
+# Other
+*.bak
+*.backup
