@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/checkout.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container checkout-container">
+    <h2 class="mb-4 text-center">Checkout</h2>
+    
+    <div class="row">
+        <!-- Order Summary -->
+        <div class="col-lg-5">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Order Summary</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th class="text-end">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in cart_items %}
+                            <tr>
+                                <td>{{ item.product.name }} × {{ item.quantity }}</td>
+                                <td class="text-end">${{ item.total|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                            <tr class="border-top">
+                                <th>Total</th>
+                                <th class="text-end">${{ total_price|floatformat:2 }}</th>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Payment & Shipping -->
+        <div class="col-lg-7">
+            <form method="POST" action="{% url 'store:checkout' %}">
+                {% csrf_token %}
+                <input type="hidden" name="total_price" value="{{ total_price }}">
+                
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Shipping Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" name="email" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Phone Number</label>
+                            <input type="tel" name="phone" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Shipping Address</label>
+                            <textarea name="address" class="form-control" rows="3" required></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Payment Method</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="payment-methods">
+                            <div class="payment-method" data-method="MPESA">
+                                <i class="fas fa-mobile-alt"></i>
+                                <span>M-Pesa</span>
+                            </div>
+                            <div class="payment-method" data-method="VISA">
+                                <i class="fab fa-cc-visa"></i>
+                                <span>Visa</span>
+                            </div>
+                            <div class="payment-method" data-method="MASTERCARD">
+                                <i class="fab fa-cc-mastercard"></i>
+                                <span>Mastercard</span>
+                            </div>
+                        </div>
+                        <input type="hidden" name="payment_method" id="payment_method" required>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-checkout w-100 btn-lg">
+                    Complete Purchase
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Payment method selection
+    const paymentMethods = document.querySelectorAll('.payment-method');
+    const paymentInput = document.getElementById('payment_method');
+    
+    paymentMethods.forEach(method => {
+        method.addEventListener('click', function() {
+            // Remove previous selection
+            paymentMethods.forEach(m => m.classList.remove('selected'));
+            
+            // Set new selection
+            this.classList.add('selected');
+            paymentInput.value = this.dataset.method;
+        });
+    });
+    
+    // Form validation
+    document.querySelector('form').addEventListener('submit', function(e) {
+        if (!paymentInput.value) {
+            e.preventDefault();
+            alert('Please select a payment method');
+        }
+    });
+});
+</script>
+{% endblock %}
