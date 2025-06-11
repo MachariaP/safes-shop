@@ -28,12 +28,12 @@
                             {% for item in cart_items %}
                             <tr>
                                 <td>{{ item.product.name }} × {{ item.quantity }}</td>
-                                <td class="text-end">${{ item.total|floatformat:2 }}</td>
+                                <td class="text-end">Ksh {{ item.total|floatformat:2 }}</td>
                             </tr>
                             {% endfor %}
                             <tr class="border-top">
                                 <th>Total</th>
-                                <th class="text-end">${{ total_price|floatformat:2 }}</th>
+                                <th class="text-end">Ksh {{ total_price|floatformat:2 }}</th>
                             </tr>
                         </tbody>
                     </table>
