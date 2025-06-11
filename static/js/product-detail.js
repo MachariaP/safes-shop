@@ -1,5 +1,4 @@
 // static/js/product-detail.js
-
 document.addEventListener('DOMContentLoaded', () => {
     // Quantity Control
     const decreaseQty = document.getElementById('decreaseQty');
@@ -39,27 +38,44 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Add to Cart Functionality
-    const addToCartBtn = document.getElementById('addToCart');
-    const cartToast = new bootstrap.Toast(document.getElementById('cartToast'));
-    const toastBody = document.querySelector('#cartToast .toast-body');
+    // Helper function to get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
 
-    if (addToCartBtn && cartToast && toastBody) {
-        addToCartBtn.addEventListener('click', () => {
-            const slug = addToCartBtn.getAttribute('data-slug');
-            const quantity = qtyInput ? parseInt(qtyInput.value) : 1;
-            fetch(`/store/add-to-cart/${slug}/`, {
+    // Add to Cart Functionality
+    const addToCartForm = document.getElementById('add-to-cart-form');
+    const cartToast = new bootstrap.Toast(document.getElementById('cartToast'));
+
+    if (addToCartForm && cartToast) {
+        addToCartForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const formData = new FormData(addToCartForm);
+            const actionUrl = addToCartForm.getAttribute('action');
+            const addToCartBtn = document.getElementById('addToCart');
+
+            fetch(actionUrl, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
                     'X-CSRFToken': getCookie('csrftoken'),
+                    'X-Requested-With': 'XMLHttpRequest',
                 },
-                body: `quantity=${quantity}`
+                body: formData,
             })
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
-                    toastBody.textContent = data.message;
                     cartToast.show();
                     addToCartBtn.innerHTML = '<i class="fas fa-check"></i> Added';
                     addToCartBtn.classList.add('btn-success');
@@ -70,30 +86,39 @@ document.addEventListener('DOMContentLoaded', () => {
                         addToCartBtn.classList.remove('btn-success');
                     }, 2000);
 
-                    // Dispatch custom event to update cart badge
+                    // Update cart badge
+                    const cartBadge = document.getElementById('cartBadge');
+                    if (cartBadge) {
+                        cartBadge.textContent = parseInt(cartBadge.textContent || 0) + parseInt(formData.get('quantity'));
+                    }
                     window.dispatchEvent(new Event('cartUpdated'));
                 } else {
-                    console.error(data.message);
+                    alert(data.message);
                 }
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => console.error('Error adding to cart:', error));
         });
     }
 
     // Add to Wishlist Functionality
-    const addToWishlistBtn = document.getElementById('addToWishlist');
+    const addToWishlistForm = document.getElementById('add-to-wishlist-form');
     const wishlistToast = new bootstrap.Toast(document.getElementById('wishlistToast'));
     const wishlistToastBody = document.getElementById('wishlistToastBody');
 
-    if (addToWishlistBtn && wishlistToast && wishlistToastBody) {
-        addToWishlistBtn.addEventListener('click', () => {
-            const slug = addToWishlistBtn.getAttribute('data-slug');
-            fetch(`/store/add-to-wishlist/${slug}/`, {
+    if (addToWishlistForm && wishlistToast && wishlistToastBody) {
+        addToWishlistForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const actionUrl = addToWishlistForm.getAttribute('action');
+            const addToWishlistBtn = document.getElementById('addToWishlist');
+
+            fetch(actionUrl, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Type': 'application/json',
                     'X-CSRFToken': getCookie('csrftoken'),
-                }
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                body: JSON.stringify({}),
             })
             .then(response => response.json())
             .then(data => {
@@ -110,26 +135,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         addToWishlistBtn.innerHTML = '<i class="fas fa-heart"></i> Add to Wishlist';
                     }
                 } else {
-                    console.error(data.message);
+                    alert(data.message);
                 }
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => console.error('Error adding to wishlist:', error));
         });
-    }
-
-    // Helper function to get CSRF token
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
     }
 });
