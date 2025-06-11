@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function syncCartWithServer(cart) {
+        console.log('Syncing cart to: /store/update-cart/', cart);
         fetch('/store/update-cart/', {
             method: 'POST',
             headers: {
@@ -41,7 +42,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return response.json();
         })
         .then(data => {
-            if (data.status !== 'success') {
+            if (data.status === 'success') {
+                console.log('Cart synced successfully');
+            } else {
                 console.warn('Cart sync failed:', data.message);
             }
         })
@@ -65,8 +68,12 @@ document.addEventListener('DOMContentLoaded', () => {
             'X-Requested-With': 'XMLHttpRequest',
         },
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json();
+    })
     .then(data => {
+        console.log('Fetched server cart:', data);
         if (data.status === 'success' && data.cart_items) {
             let cart = getCart();
             data.cart_items.forEach(item => {
@@ -109,5 +116,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Initial badge update
     updateCartBadge();
 });
