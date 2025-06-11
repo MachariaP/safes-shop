@@ -32,13 +32,17 @@ document.addEventListener('DOMContentLoaded', () => {
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': getCSRFToken(),
+                'X-Requested-With': 'XMLHttpRequest',
             },
             body: JSON.stringify({ cart }),
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return response.json();
+        })
         .then(data => {
             if (data.status !== 'success') {
-                console.error('Error syncing cart:', data.message);
+                console.warn('Cart sync failed:', data.message);
             }
         })
         .catch(error => console.error('Error syncing cart:', error));
@@ -54,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return '';
     }
 
-    // Fetch server-side cart on page load to initialize localStorage
+    // Fetch server-side cart on page load
     fetch('/store/cart/', {
         method: 'GET',
         headers: {
@@ -63,16 +67,18 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     .then(response => response.json())
     .then(data => {
-        let cart = getCart();
-        data.cart_items.forEach(item => {
-            cart[item.product.slug] = {
-                quantity: item.quantity,
-                price: item.price.toString(),
-            };
-        });
-        saveCart(cart);
+        if (data.status === 'success' && data.cart_items) {
+            let cart = getCart();
+            data.cart_items.forEach(item => {
+                cart[item.product.slug] = {
+                    quantity: item.quantity,
+                    price: item.price.toString(),
+                };
+            });
+            saveCart(cart);
+        }
     })
-    .catch(error => console.error('Error fetching cart:', error));
+    .catch(error => console.error('Error fetching server cart:', error));
 
     // Handle quantity changes
     quantityInputs.forEach(input => {
