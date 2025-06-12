@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}About Us - Diplomat Safes{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/about_us.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5 about-us-container">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <h1 class="display-5 text-center mb-4">About Diplomat Safes</h1>
+            <div class="text-center mb-5">
+                <div class="border-bottom border-primary border-3 mx-auto" style="width: 100px;"></div>
+            </div>
+
+            <!-- Our Story -->
+            <div class="card shadow-sm mb-5">
+                <div class="card-body p-4 p-lg-5">
+                    <h2 class="h3 mb-4">Our Story</h2>
+                    <p class="lead">Since 1987, Diplomat Safes has been Kenya’s trusted provider of premium security solutions for homes and businesses.</p>
+                    <p>Founded in Nairobi by John Kamau, our journey began with a vision to craft safes that combine unmatched security with elegant design. From a small workshop, we’ve grown into East Africa’s leading safe manufacturer, protecting valuables for thousands of customers.</p>
+                    <p>Our safes blend German engineering precision with Kenyan craftsmanship, ensuring world-class quality tailored to local needs.</p>
+                </div>
+            </div>
+
+            <!-- Mission and Values -->
+            <div class="row mb-5">
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100 shadow-sm mission-card">
+                        <div class="card-body p-4">
+                            <h3 class="h4 mb-3">Our Mission</h3>
+                            <p>Deliver innovative security solutions that provide peace of mind through superior craftsmanship, advanced technology, and exceptional service.</p>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check-circle text-primary me-2"></i> High-quality materials</li>
+                                <li><i class="fas fa-check-circle text-primary me-2"></i> Rigorous testing</li>
+                                <li><i class="fas fa-check-circle text-primary me-2"></i> Continuous innovation</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100 shadow-sm values-card">
+                        <div class="card-body p-4">
+                            <h3 class="h4 mb-3">Our Values</h3>
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><i class="fas fa-check-circle text-primary me-2"></i> <strong>Security:</strong> Prioritizing your safety</li>
+                                <li class="mb-2"><i class="fas fa-check-circle text-primary me-2"></i> <strong>Craftsmanship:</strong> Supporting local artisans</li>
+                                <li class="mb-2"><i class="fas fa-check-circle text-primary me-2"></i> <strong>Innovation:</strong> Advancing technology</li>
+                                <li><i class="fas fa-check-circle text-primary me-2"></i> <strong>Integrity:</strong> Transparent practices</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Our Team -->
+            <div class="card shadow-sm mb-5">
+                <div class="card-body p-4 p-lg-5">
+                    <h2 class="h3 mb-4">Our Team</h2>
+                    <p>Our dedicated team includes certified locksmiths, mechanical engineers, and customer service professionals committed to excellence. We invest in ongoing training to deliver top-tier service, from consultation to installation.</p>
+                    <div class="row text-center">
+                        {% for member in team_members %}
+                        <div class="col-sm-4 mb-3">
+                            <div class="team-member">
+                                <img src="{{ member.image.url }}" alt="{{ member.name }}" class="rounded-circle mb-3" width="120" height="120">
+                                <h5>{{ member.name }}</h5>
+                                <p class="text-muted">{{ member.title }}</p>
+                                {% if member.bio %}
+                                <p class="small">{{ member.bio|truncatewords:20 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="col-12 text-center">
+                            <p class="text-muted">No team members added yet.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Call to Action -->
+            <div class="text-center mt-5">
+                <a href="{% url 'store:category_product_list' category='home_commercial' %}" class="btn btn-primary btn-lg px-5" id="view-products-cta">Explore Our Safes</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/about_us.js' %}"></script>
+{% endblock %}
