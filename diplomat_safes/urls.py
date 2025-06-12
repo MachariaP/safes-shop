@@ -27,6 +27,7 @@ urlpatterns = [
     path('', product_list, name='home'),  # Homepage maps to store's product_list view
     path('newsletter/signup/', views.newsletter_signup, name='newsletter_signup'),
     path('store/', include('store.urls')),  # Store app URLs
+    path('', include('core.urls', namespace='core')),  # Core app URLs
     path('users/', include('users.urls')),  # Users app URLs
     path('payments/', include('payments.urls')),  # Payments app URLs
     path('referrals/', include('referrals.urls')),  # Referrals app URLs
