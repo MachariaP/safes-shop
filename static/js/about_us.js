@@ -1,20 +1,12 @@
 // static/js/about_us.js
 document.addEventListener('DOMContentLoaded', () => {
-    // CTA Button Smooth Scroll
+    // CTA Button Redirect
     const ctaButton = document.getElementById('view-products-cta');
     if (ctaButton) {
         ctaButton.addEventListener('click', (e) => {
             e.preventDefault();
             const targetUrl = ctaButton.getAttribute('href');
-            window.location.href = targetUrl; // Redirect to store page for now
-            // Uncomment below if you want scroll behavior instead
-            // const target = document.querySelector(targetUrl);
-            // if (target) {
-            //     window.scrollTo({
-            //         top: target.offsetTop - 80,
-            //         behavior: 'smooth'
-            //     });
-            // }
+            window.location.href = targetUrl;
         });
     }
 
@@ -23,28 +15,59 @@ document.addEventListener('DOMContentLoaded', () => {
     if (teamModal) {
         teamModal.addEventListener('show.bs.modal', (event) => {
             const button = event.relatedTarget;
-            const name = button.getAttribute('data-name');
-            const title = button.getAttribute('data-title');
-            const bio = button.getAttribute('data-bio');
+            if (!button) {
+                console.error('No trigger button found for modal.');
+                return;
+            }
 
+            // Get data attributes with fallbacks
+            const name = button.getAttribute('data-name') || 'Team Member';
+            const title = button.getAttribute('data-title') || 'Position';
+            const bio = button.getAttribute('data-bio') || 'No bio available.';
+            const imageUrl = button.getAttribute('data-image') || '';
+
+            // Get modal elements
             const modalTitle = teamModal.querySelector('.modal-title');
             const modalSubtitle = teamModal.querySelector('.modal-title-subtitle');
             const modalBio = teamModal.querySelector('.modal-bio');
+            const modalImage = teamModal.querySelector('.modal-member-img');
 
+            // Update modal content
             modalTitle.textContent = name;
             modalSubtitle.textContent = title;
-            modalBio.textContent = bio || 'No bio available.';
+            modalBio.textContent = bio;
+            
+            if (imageUrl && modalImage) {
+                modalImage.src = imageUrl;
+                modalImage.alt = `${name} - ${title}`;
+            } else if (modalImage) {
+                modalImage.src = '';
+                modalImage.alt = 'No image available';
+            }
         });
+    } else {
+        console.error('Team modal element not found.');
     }
 
-    // Optional: Add hover effect for team images
-    const teamImages = document.querySelectorAll('.team-img');
-    teamImages.forEach(img => {
-        img.addEventListener('mouseover', () => {
-            img.style.borderColor = '#0056b3';
+    // Enhanced hover effect for team member cards
+    const teamMembers = document.querySelectorAll('.team-member');
+    if (teamMembers.length > 0) {
+        teamMembers.forEach(member => {
+            member.addEventListener('mouseenter', () => {
+                member.style.transform = 'translateY(-5px)';
+                member.style.boxShadow = '0 10px 20px rgba(0, 0, 0, 0.1)';
+                member.style.backgroundColor = '#f8fbff';
+                member.style.borderColor = '#cfe2ff';
+            });
+            
+            member.addEventListener('mouseleave', () => {
+                member.style.transform = '';
+                member.style.boxShadow = '';
+                member.style.backgroundColor = '';
+                member.style.borderColor = '#e9ecef';
+            });
         });
-        img.addEventListener('mouseout', () => {
-            img.style.borderColor = '#0d6efd';
-        });
-    });
+    } else {
+        console.warn('No team members found.');
+    }
 });
