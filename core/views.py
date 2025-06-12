@@ -9,3 +9,6 @@ class AboutUsView(TemplateView):
         context = super().get_context_data(**kwargs)
         context['team_members'] = TeamMember.objects.all()
         return context
+
+class ContactView(TemplateView):
+    template_name = 'core/contact.html'
