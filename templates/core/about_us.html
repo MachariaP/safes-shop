@@ -21,8 +21,8 @@
             <section class="card shadow-sm mb-5 story-section">
                 <div class="card-body p-4 p-lg-5">
                     <h2 class="h3 mb-4 fw-semibold">Our Story</h2>
-                    <p class="lead text-muted">Since 1987, Diplomat Safes has been Kenya’s trusted provider of premium security solutions for homes and businesses.</p>
-                    <p class="text-muted">Founded in Nairobi by John Kamau, our journey began with a vision to craft safes that combine unmatched security with elegant design. From a small workshop, we’ve grown into East Africa’s leading safe manufacturer, protecting valuables for thousands of customers.</p>
+                    <p class="lead text-muted">Since 1987, Diplomat Safes has been Kenya's trusted provider of premium security solutions for homes and businesses.</p>
+                    <p class="text-muted">Founded in Nairobi by John Kamau, our journey began with a vision to craft safes that combine unmatched security with elegant design. From a small workshop, we've grown into East Africa's leading safe manufacturer, protecting valuables for thousands of customers.</p>
                     <p class="text-muted">Our safes blend German engineering precision with Kenyan craftsmanship, ensuring world-class quality tailored to local needs.</p>
                 </div>
             </section>
@@ -66,11 +66,26 @@
                         {% for member in team_members %}
                         <div class="col-12 col-sm-6 col-md-4 mb-4">
                             <div class="team-member position-relative">
-                                <img src="{{ member.image.url }}" alt="{{ member.name }}" class="rounded-circle mb-3 team-img" data-bs-toggle="modal" data-bs-target="#teamModal" data-name="{{ member.name }}" data-title="{{ member.title }}" data-bio="{{ member.bio }}">
+                                <img src="{{ member.image.url }}" alt="{{ member.name }}" class="rounded-circle mb-3 team-img" 
+                                     data-bs-toggle="modal" data-bs-target="#teamModal" 
+                                     data-name="{{ member.name }}" 
+                                     data-title="{{ member.title }}" 
+                                     data-bio="{{ member.bio|default:'No bio available.' }}"
+                                     data-image="{{ member.image.url }}">
                                 <h5 class="fw-bold">{{ member.name }}</h5>
                                 <p class="text-muted">{{ member.title }}</p>
                                 {% if member.bio %}
-                                <p class="small text-muted bio-preview">{{ member.bio|truncatewords:10 }} <a href="#" class="read-more" data-bs-toggle="modal" data-bs-target="#teamModal" data-name="{{ member.name }}" data-title="{{ member.title }}" data-bio="{{ member.bio }}">Read more</a></p>
+                                <p class="small text-muted bio-preview">{{ member.bio|truncatewords:10 }} 
+                                    <a href="#" class="read-more" 
+                                       data-bs-toggle="modal" 
+                                       data-bs-target="#teamModal" 
+                                       data-name="{{ member.name }}" 
+                                       data-title="{{ member.title }}" 
+                                       data-bio="{{ member.bio }}"
+                                       data-image="{{ member.image.url }}">Read more</a>
+                                </p>
+                                {% else %}
+                                <p class="small text-muted">No bio available.</p>
                                 {% endif %}
                             </div>
                         </div>
@@ -93,15 +108,22 @@
 
 <!-- Team Member Modal -->
 <div class="modal fade" id="teamModal" tabindex="-1" aria-labelledby="teamModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="teamModalLabel"></h5>
+            <div class="modal-header bg-light">
+                <h5 class="modal-title fw-bold" id="teamModalLabel"></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p class="modal-title-subtitle"></p>
-                <p class="modal-bio"></p>
+                <div class="row">
+                    <div class="col-md-4 text-center mb-3 mb-md-0">
+                        <img src="" alt="" class="img-fluid rounded-circle modal-member-img">
+                    </div>
+                    <div class="col-md-8">
+                        <p class="modal-title-subtitle text-muted mb-3"></p>
+                        <p class="modal-bio"></p>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
