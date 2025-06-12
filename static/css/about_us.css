@@ -1,0 +1,38 @@
+/* static/css/about_us.css */
+.about-us-container {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+}
+.border-primary {
+    border-color: #0d6efd !important;
+}
+.mission-card, .values-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.mission-card:hover, .values-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15) !important;
+}
+.team-member img {
+    border: 2px solid #0d6efd;
+    object-fit: cover;
+    width: 120px;
+    height: 120px;
+}
+#view-products-cta {
+    font-weight: 600;
+    padding: 0.75rem 2rem;
+}
+@media (max-width: 576px) {
+    .about-us-container {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+    }
+    .team-member img {
+        width: 100px;
+        height: 100px;
+    }
+    #view-products-cta {
+        width: 100%;
+    }
+}
