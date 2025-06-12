@@ -18,6 +18,7 @@ INSTALLED_APPS = [
     'users',
     'payments',
     'referrals',
+    'core',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -116,11 +117,11 @@ LOGOUT_REDIRECT_URL = '/'
 
 # Static files
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / "static"]
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Crispy Forms
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
@@ -138,6 +139,8 @@ CKEDITOR_CONFIGS = {
         'forcePasteAsPlainText': False,
     }
 }
+
+SILENCED_SYSTEM_CHECKS = ['ckeditor.W001']  # Suppress CKEditor warning
 
 # MPesa configuration
 MPESA_CONFIG = {
