@@ -1,9 +1,10 @@
 from django.db import models
 from django.utils.text import slugify
 from django.urls import reverse
+from django.conf import settings
 from ckeditor.fields import RichTextField
+import uuid
 
-# Create your models here.
 class SafeProduct(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200, unique=True, blank=True)
@@ -28,7 +29,7 @@ class SafeProduct(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            base_slug = slugify(self.name)  # Converts to lowercase by default
+            base_slug = slugify(self.name)
             unique_slug = base_slug
             counter = 1
             while SafeProduct.objects.filter(slug=unique_slug).exists():
@@ -88,7 +89,15 @@ class Order(models.Model):
         ('MASTERCARD', 'Mastercard'),
     ]
     
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='orders'
+    )
     session_key = models.CharField(max_length=40, blank=True, null=True)
+    order_number = models.CharField(max_length=32, unique=True, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -99,7 +108,15 @@ class Order(models.Model):
     shipping_address = models.TextField()
 
     def __str__(self):
-        return f"Order #{self.id} - {self.total_price}"
+        return f"Order #{self.order_number or 'Pending'}"
+
+    def save(self, *args, **kwargs):
+        if not self.order_number:
+            self.order_number = self._generate_order_number()
+        super().save(*args, **kwargs)
+
+    def _generate_order_number(self):
+        return f"ORD-{uuid.uuid4().hex[:10].upper()}"
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
