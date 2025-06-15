@@ -7,6 +7,7 @@ from django.core.paginator import Paginator
 from django.views.generic import View
 import json
 import logging
+import uuid
 from .models import SafeProduct, StoreLocation, CartItem, WishlistItem, Order, OrderItem
 
 # Set up logging
@@ -130,10 +131,10 @@ def newsletter_signup(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         if email:
-            messages.success(request, f"Thank you for subscribing with {email}!")
+            messages.success(request, f"Thank you for subscribing with {email}!", extra_tags='newsletter')
             return redirect('home')
         else:
-            messages.error(request, "Please enter a valid email address.")
+            messages.error(request, "Please enter a valid email address.", extra_tags='newsletter')
     return redirect('home')
 
 def store_locations(request):
@@ -261,7 +262,9 @@ class CheckoutView(View):
         
         try:
             order = Order.objects.create(
+                user=request.user if request.user.is_authenticated else None,
                 session_key=request.session.session_key,
+                order_number=f"ORD-{uuid.uuid4().hex[:8].upper()}",
                 total_price=float(request.POST.get('total_price')),
                 payment_method=request.POST.get('payment_method'),
                 contact_email=request.POST.get('email'),
@@ -283,7 +286,7 @@ class CheckoutView(View):
             
             request.session['cart'] = {}
             request.session.modified = True
-            logger.debug(f"Order #{order.id} created, cart cleared, Session Key: {request.session.session_key}")
+            logger.debug(f"Order #{order.order_number} created, cart cleared, Session Key: {request.session.session_key}")
             messages.success(request, "Order placed successfully!")
             return redirect('store:order_confirmation', order_id=order.id)
         except Exception as e:
@@ -294,6 +297,13 @@ class CheckoutView(View):
 def order_confirmation(request, order_id):
     order = get_object_or_404(Order, id=order_id)
     return render(request, 'store/order_confirmation.html', {'order': order})
+
+def order_detail(request, order_number):
+    if request.user.is_authenticated:
+        order = get_object_or_404(Order, order_number=order_number, user=request.user)
+    else:
+        order = get_object_or_404(Order, order_number=order_number, session_key=request.session.session_key)
+    return render(request, 'store/order_detail.html', {'order': order})
 
 def debug_session(request):
     return JsonResponse({
