@@ -13,6 +13,10 @@ from .views import (
     OrderDetailView,
     newsletter_signup,
     debug_session,
+    mpesa_callback,
+    payment_pending,
+    payment_success,
+    payment_failure,
 )
 
 app_name = 'store'
@@ -32,4 +36,8 @@ urlpatterns = [
     path('locations/', store_locations, name='store_locations'),
     path('newsletter-signup/', newsletter_signup, name='newsletter_signup'),
     path('debug-session/', debug_session, name='debug_session'),
+    path('mpesa-callback/', mpesa_callback, name='mpesa_callback'),
+    path('payment-pending/<int:order_id>/', payment_pending, name='payment_pending'),
+    path('payment-success/', payment_success, name='payment_success'),
+    path('payment-failure/', payment_failure, name='payment_failure'),
 ]
