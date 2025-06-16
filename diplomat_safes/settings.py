@@ -31,7 +31,6 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'crispy_forms',
     'ckeditor',
-
 ]
 
 SITE_ID = 1  # Required for allauth
@@ -142,10 +141,16 @@ CKEDITOR_CONFIGS = {
 
 SILENCED_SYSTEM_CHECKS = ['ckeditor.W001']  # Suppress CKEditor warning
 
-# MPesa configuration
+# M-Pesa configuration
 MPESA_CONFIG = {
     'CONSUMER_KEY': env('MPESA_CONSUMER_KEY'),
     'CONSUMER_SECRET': env('MPESA_CONSUMER_SECRET'),
     'SHORTCODE': env('MPESA_SHORTCODE'),
     'PASSKEY': env('MPESA_PASSKEY'),
+    'STK_PUSH_URL': 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest',
+    'CALLBACK_URL': 'https://yourdomain.com/store/mpesa-callback/',
 }
+
+# Stripe configuration
+STRIPE_PUBLIC_KEY = env('STRIPE_PUBLIC_KEY')
+STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY')
