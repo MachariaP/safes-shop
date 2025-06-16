@@ -59,30 +59,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const cartToast = new bootstrap.Toast(document.getElementById('cartToast'));
 
     if (addToCartForm && cartToast) {
-        addToCartForm.addEventListener('submit', (e) => {
+        addToCartForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(addToCartForm);
             const actionUrl = addToCartForm.getAttribute('action');
             const addToCartBtn = document.getElementById('addToCart');
-            const slug = addToCartBtn.dataset.slug;
-            const quantity = parseInt(formData.get('quantity'));
 
-            fetch(actionUrl, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': getCookie('csrftoken'),
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-                body: formData,
-            })
-            .then(response => response.json())
-            .then(data => {
+            try {
+                const response = await fetch(actionUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    body: formData,
+                });
+                const data = await response.json();
                 if (data.status === 'success') {
-                    // Update localStorage
-                    let cart = JSON.parse(localStorage.getItem('cart')) || {};
-                    cart[slug] = { quantity: (cart[slug]?.quantity || 0) + quantity, price: data.price };
-                    localStorage.setItem('cart', JSON.stringify(cart));
-
                     // Show toast and update button
                     cartToast.show();
                     addToCartBtn.innerHTML = '<i class="fas fa-check"></i> Added';
@@ -94,17 +87,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         addToCartBtn.classList.remove('btn-success');
                     }, 2000);
 
-                    // Update cart badge
-                    const cartBadge = document.getElementById('cartBadge');
-                    if (cartBadge) {
-                        cartBadge.textContent = parseInt(cartBadge.textContent || 0) + quantity;
-                    }
+                    // Trigger cart update event
                     window.dispatchEvent(new Event('cartUpdated'));
                 } else {
                     alert(data.message);
                 }
-            })
-            .catch(error => console.error('Error adding to cart:', error));
+            } catch (error) {
+                console.error('Error adding to cart:', error);
+            }
         });
     }
 
@@ -114,34 +104,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const wishlistToastBody = document.getElementById('wishlistToastBody');
 
     if (addToWishlistForm && wishlistToast && wishlistToastBody) {
-        addToWishlistForm.addEventListener('submit', (e) => {
+        addToWishlistForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const actionUrl = addToWishlistForm.getAttribute('action');
             const addToWishlistBtn = document.getElementById('addToWishlist');
 
-            fetch(actionUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken'),
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-                body: JSON.stringify({}),
-            })
-            .then(response => response.json())
-            .then(data => {
+            try {
+                const response = await fetch(actionUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    body: JSON.stringify({}),
+                });
+                const data = await response.json();
                 if (data.status === 'success') {
-                    // Update localStorage wishlist
-                    let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
-                    if (data.action === 'added') {
-                        if (!wishlist.includes(addToWishlistBtn.dataset.slug)) {
-                            wishlist.push(addToWishlistBtn.dataset.slug);
-                        }
-                    } else {
-                        wishlist = wishlist.filter(slug => slug !== addToWishlistBtn.dataset.slug);
-                    }
-                    localStorage.setItem('wishlist', JSON.stringify(wishlist));
-
                     // Show toast and update button
                     wishlistToastBody.textContent = data.message;
                     wishlistToast.show();
@@ -157,8 +136,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     alert(data.message);
                 }
-            })
-            .catch(error => console.error('Error adding to wishlist:', error));
+            } catch (error) {
+                console.error('Error adding to wishlist:', error);
+            }
         });
     }
 });
