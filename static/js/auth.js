@@ -42,4 +42,5 @@ document.addEventListener('DOMContentLoaded', function () {
 
     handleFormSubmit('loginForm');
     handleFormSubmit('signupForm');
+    handleFormSubmit('logoutForm');
 });
