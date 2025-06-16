@@ -46,13 +46,10 @@ document.addEventListener('DOMContentLoaded', () => {
     cart.updateCart();
     document.addEventListener('cartUpdated', () => cart.updateCart());
 });
-```
 
 M-Pesa Payment (payments/views.py)
-
 python
 
-```python
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import requests
@@ -73,71 +70,78 @@ def initiate_mpesa_payment(request):
         response = requests.post(settings.MPESA_STK_PUSH_URL, json=payload, headers=headers)
         return JsonResponse(response.json())
     return JsonResponse({'error': 'Invalid request'}, status=400)
-```
 
 Installation
+Prerequisites
+Python 3.10+
 
-1. Install Prerequisites:
-    - Python 3.10+
-    - PostgreSQL 14+
-    - Git
+PostgreSQL 14+
 
-2. Set Up Virtual Environment:
-    bash
-    python -m venv venv
-    source venv/bin/activate  # Linux/Mac
-    venv\Scripts\activate     # Windows
+Git
 
-3. Install Dependencies:
-    bash
-    pip install -r requirements.txt
+Setup Steps
+Set Up Virtual Environment:
+bash
 
-4. Configure Environment: Create .env in the project root
-    ini
-    SECRET_KEY=your_secret_key_here
-    DEBUG=True
-    ALLOWED_HOSTS=localhost,127.0.0.1
-    DB_NAME=diplomat_safes
-    DB_USER=your_db_user
-    DB_PASSWORD=your_db_password
-    DB_HOST=localhost
-    DB_PORT=5432
-    MPESA_CONSUMER_KEY=your_mpesa_key
-    MPESA_CONSUMER_SECRET=your_mpesa_secret
-    MPESA_SHORTCODE=your_shortcode
-    MPESA_STK_PUSH_URL=https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest
-    MPESA_CALLBACK_URL=https://your-callback-url
-    STRIPE_PUBLIC_KEY=your_stripe_public_key
-    STRIPE_SECRET_KEY=your_stripe_secret_key
-    GOOGLE_CLIENT_ID=your_google_client_id
-    GOOGLE_CLIENT_SECRET=your_google_client_secret
-    FACEBOOK_APP_ID=your_facebook_app_id
-    FACEBOOK_SECRET=your_facebook_secret
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+venv\Scripts\activate     # Windows
 
-5. Run Migrations:
-    bash
-    python manage.py migrate
+Install Dependencies:
+bash
 
-6. Create Superuser:
-    bash
-    python manage.py createsuperuser
+pip install -r requirements.txt
 
-7. Collect Static Files:
-    bash
-    python manage.py collectstatic
-    
-8. Start Server:
-    bash
-    python manage.py runserver
-    Access at http://127.0.0.1:8000.
-    License
+Configure Environment:
+Create .env in the project root:
+ini
 
+SECRET_KEY=your_secret_key_here
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1
+DB_NAME=diplomat_safes
+DB_USER=your_db_user
+DB_PASSWORD=your_db_password
+DB_HOST=localhost
+DB_PORT=5432
+MPESA_CONSUMER_KEY=your_mpesa_key
+MPESA_CONSUMER_SECRET=your_mpesa_secret
+MPESA_SHORTCODE=your_shortcode
+MPESA_STK_PUSH_URL=https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest
+MPESA_CALLBACK_URL=https://your-callback-url
+STRIPE_PUBLIC_KEY=your_stripe_public_key
+STRIPE_SECRET_KEY=your_stripe_secret_key
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+FACEBOOK_APP_ID=your_facebook_app_id
+FACEBOOK_SECRET=your_facebook_secret
+
+Run Migrations:
+bash
+
+python manage.py migrate
+
+Create Superuser:
+bash
+
+python manage.py createsuperuser
+
+Collect Static Files:
+bash
+
+python manage.py collectstatic
+
+Start Server:
+bash
+
+python manage.py runserver
+
+Access at http://127.0.0.1:8000.
+
+License
 MIT License. See LICENSE for details.
-
 Contact
-
 Email: walburphinehas78@gmail.com (mailto:walburphinehas78@gmail.com)
-
-----------
-
 Diplomat Safes © 2025 - Premium Security Solutions
+
+
