@@ -33,4 +33,8 @@ urlpatterns = [
     path('referrals/', include('referrals.urls')),  # Referrals app URLs
     path('admin/', admin.site.urls),  # Admin interface
     path('accounts/', include('allauth.urls')),  # django-allauth URLs
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)  # Serve media files in development
+]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
