@@ -1,0 +1,72 @@
+/* static/css/account.css */
+.account-container {
+    background-color: #f8f9fa;
+    min-height: calc(100vh - 150px);
+}
+
+.account-sidebar {
+    border-radius: 10px;
+    overflow: hidden;
+    position: sticky;
+    top: 20px;
+}
+
+.profile-pic img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border: 2px solid #e9ecef;
+}
+
+.account-menu .list-group-item {
+    border: none;
+    border-radius: 8px;
+    margin-bottom: 5px;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s;
+    color: #495057;
+    font-weight: 500;
+}
+
+.account-menu .list-group-item:hover {
+    background-color: #e9ecef;
+}
+
+.account-menu .list-group-item.active {
+    background-color: #0d6efd;
+    color: white;
+    border: none;
+}
+
+.account-content {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(13, 110, 253, 0.05);
+}
+
+.table th {
+    font-weight: 600;
+    color: #495057;
+}
+
+.empty-state-icon {
+    width: 60px;
+    height: 60px;
+    background-color: #f8f9fa;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+@media (max-width: 992px) {
+    .account-sidebar {
+        position: relative;
+        top: 0;
+        margin-bottom: 1.5rem;
+    }
+}
