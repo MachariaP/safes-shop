@@ -10,6 +10,7 @@ from .views import (
     order_detail,
     order_confirmation,
     store_locations,
+    OrderDetailView,
     newsletter_signup,
     debug_session,
 )
@@ -27,6 +28,7 @@ urlpatterns = [
     path('checkout/', CheckoutView.as_view(), name='checkout'),
     path('order/<str:order_number>/', order_detail, name='order_detail'),
     path('order-confirmation/<int:order_id>/', order_confirmation, name='order_confirmation'),
+    path('order/<str:order_number>/', OrderDetailView.as_view(), name='order_detail'),
     path('locations/', store_locations, name='store_locations'),
     path('newsletter-signup/', newsletter_signup, name='newsletter_signup'),
     path('debug-session/', debug_session, name='debug_session'),
