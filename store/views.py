@@ -7,6 +7,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.template.loader import render_to_string
 from django.core.paginator import Paginator
 from django.views.generic import View, DetailView
+from django.conf import settings
+from django.urls import reverse  # Added import
 import json
 import logging
 import uuid
