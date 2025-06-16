@@ -43,7 +43,7 @@
         
         <!-- Payment & Shipping -->
         <div class="col-lg-7">
-            <form method="POST" action="{% url 'store:checkout' %}">
+            <form id="checkout-form" method="POST" action="{% url 'store:checkout' %}">
                 {% csrf_token %}
                 <input type="hidden" name="total_price" value="{{ total_price }}">
                 
@@ -87,10 +87,12 @@
                             </div>
                         </div>
                         <input type="hidden" name="payment_method" id="payment_method" required>
+                        <div id="card-element" style="display: none;"></div>
+                        <div id="card-errors" role="alert"></div>
                     </div>
                 </div>
                 
-                <button type="submit" class="btn btn-checkout w-100 btn-lg">
+                <button type="submit" class="btn btn-checkout w-100 btn-lg" id="submit-button">
                     Complete Purchase
                 </button>
             </form>
@@ -100,28 +102,77 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://js.stripe.com/v3/"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Payment method selection
+    const stripe = Stripe('{{ stripe_public_key }}');
+    const elements = stripe.elements();
+    const cardElement = elements.create('card');
+    cardElement.mount('#card-element');
+    
     const paymentMethods = document.querySelectorAll('.payment-method');
     const paymentInput = document.getElementById('payment_method');
+    const form = document.getElementById('checkout-form');
+    const submitButton = document.getElementById('submit-button');
     
     paymentMethods.forEach(method => {
         method.addEventListener('click', function() {
-            // Remove previous selection
             paymentMethods.forEach(m => m.classList.remove('selected'));
-            
-            // Set new selection
             this.classList.add('selected');
             paymentInput.value = this.dataset.method;
+            
+            document.getElementById('card-element').style.display = 
+                ['VISA', 'MASTERCARD'].includes(this.dataset.method) ? 'block' : 'none';
         });
     });
     
-    // Form validation
-    document.querySelector('form').addEventListener('submit', function(e) {
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
         if (!paymentInput.value) {
-            e.preventDefault();
             alert('Please select a payment method');
+            return;
+        }
+        
+        submitButton.disabled = true;
+        submitButton.innerHTML = `
+            <span class="spinner-border spinner-border-sm" role="status"></span>
+            Processing Payment...
+        `;
+        
+        try {
+            const formData = new FormData(form);
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            const result = await response.json();
+            
+            if (response.ok && result.status === 'success') {
+                if (paymentInput.value === 'MPESA') {
+                    alert(result.message);
+                    window.location.href = result.redirect_url;
+                } else if (['VISA', 'MASTERCARD'].includes(paymentInput.value)) {
+                    const { error } = await stripe.confirmCardPayment(result.client_secret, {
+                        payment_method: {
+                            card: cardElement,
+                            billing_details: { email: formData.get('email') }
+                        }
+                    });
+                    if (error) {
+                        throw new Error(error.message);
+                    }
+                    window.location.href = "{% url 'store:payment_success' %}?order_id=" + result.order_id;
+                }
+            } else {
+                throw new Error(result.message || 'Payment failed');
+            }
+        } catch (error) {
+            alert(`Payment failed: ${error.message}`);
+            submitButton.disabled = false;
+            submitButton.innerHTML = 'Complete Purchase';
         }
     });
 });
