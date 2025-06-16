@@ -29,4 +29,7 @@ build/
 
 # Other
 *.bak
-*.backup
+*.backup.env
+db.sqlite3
+commit_files.sh
+.env
