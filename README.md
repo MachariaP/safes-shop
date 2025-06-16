@@ -81,14 +81,17 @@ Installation
     - Python 3.10+
     - PostgreSQL 14+
     - Git
+
 2. Set Up Virtual Environment:
     bash
     python -m venv venv
     source venv/bin/activate  # Linux/Mac
     venv\Scripts\activate     # Windows
+
 3. Install Dependencies:
     bash
     pip install -r requirements.txt
+
 4. Configure Environment: Create .env in the project root
     ini
     SECRET_KEY=your_secret_key_here
@@ -110,15 +113,19 @@ Installation
     GOOGLE_CLIENT_SECRET=your_google_client_secret
     FACEBOOK_APP_ID=your_facebook_app_id
     FACEBOOK_SECRET=your_facebook_secret
+
 5. Run Migrations:
     bash
     python manage.py migrate
+
 6. Create Superuser:
     bash
     python manage.py createsuperuser
+
 7. Collect Static Files:
     bash
     python manage.py collectstatic
+    
 8. Start Server:
     bash
     python manage.py runserver
