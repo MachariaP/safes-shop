@@ -1,3 +1,4 @@
+# diplomat_safes/settings.py
 import environ
 import os
 from pathlib import Path
@@ -29,11 +30,14 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.facebook',
     'crispy_forms',
+    'crispy_bootstrap5',
     'ckeditor',
 ]
 
-SITE_ID = 1  # Required for allauth
+SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -48,10 +52,10 @@ MIDDLEWARE = [
 
 # Session settings
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
-SESSION_COOKIE_AGE = 1209600  # 2 weeks in seconds
-SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
-SESSION_COOKIE_SAMESITE = 'Lax'  # Adjust as needed for your application
-SESSION_SAVE_EVERY_REQUEST = True  # Save session on every request
+SESSION_COOKIE_AGE = 1209600
+SESSION_COOKIE_SECURE = False
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_SAVE_EVERY_REQUEST = True
 
 # Logging configuration
 LOGGING = {
@@ -109,10 +113,44 @@ AUTHENTICATION_BACKENDS = [
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
-SITE_ID = 1
+# Allauth settings
+ACCOUNT_LOGIN_METHODS = {'email', 'username'}  # Replaces ACCOUNT_AUTHENTICATION_METHOD
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']  # Replaces ACCOUNT_EMAIL_REQUIRED, ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE, ACCOUNT_USERNAME_REQUIRED
 ACCOUNT_EMAIL_VERIFICATION = 'none'
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/store/'
+ACCOUNT_LOGOUT_REDIRECT_URL = '/'
+ACCOUNT_SIGNUP_REDIRECT_URL = '/store/'
+SOCIALACCOUNT_LOGIN_ON_GET = True
+
+# Social providers
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'APP': {
+            'client_id': env('GOOGLE_CLIENT_ID'),
+            'secret': env('GOOGLE_CLIENT_SECRET'),
+            'key': '',
+        },
+        'SCOPE': ['profile', 'email'],
+        'AUTH_PARAMS': {'access_type': 'online'},
+    },
+    'facebook': {
+        'APP': {
+            'client_id': env('FACEBOOK_APP_ID'),
+            'secret': env('FACEBOOK_APP_SECRET'),
+            'key': '',
+        },
+        'METHOD': 'oauth2',
+        'SCOPE': ['email', 'public_profile'],
+        'VERSION': 'v20.0',
+    },
+}
+
+# Crispy forms
+CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
+CRISPY_TEMPLATE_PACK = 'bootstrap5'
+
+# URLs
+LOGIN_URL = '/accounts/login/'
 
 # Static files
 STATIC_URL = '/static/'
@@ -121,9 +159,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-# Crispy Forms
-CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 CKEDITOR_CONFIGS = {
     'default': {
@@ -139,7 +174,7 @@ CKEDITOR_CONFIGS = {
     }
 }
 
-SILENCED_SYSTEM_CHECKS = ['ckeditor.W001']  # Suppress CKEditor warning
+SILENCED_SYSTEM_CHECKS = ['ckeditor.W001']
 
 # M-Pesa configuration
 MPESA_CONFIG = {
