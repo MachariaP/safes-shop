@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import JsonResponse, Http404
+from django.http import JsonResponse, Http404, HttpResponse
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
 from django.template.loader import render_to_string
 from django.core.paginator import Paginator
 from django.views.generic import View, DetailView
@@ -10,6 +11,8 @@ import json
 import logging
 import uuid
 from .models import SafeProduct, StoreLocation, CartItem, WishlistItem, Order, OrderItem
+from .mpesa import initiate_stk_push
+from .stripe import create_payment_intent
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -251,7 +254,8 @@ class CheckoutView(View):
         context = {
             'cart_items': cart_items,
             'total_price': total_price,
-            'payment_methods': Order.PAYMENT_CHOICES
+            'payment_methods': Order.PAYMENT_CHOICES,
+            'stripe_public_key': settings.STRIPE_PUBLIC_KEY,
         }
         return render(request, 'store/checkout.html', context)
     
@@ -262,6 +266,7 @@ class CheckoutView(View):
             return redirect('store:cart')
         
         try:
+            # Create order
             order = Order.objects.create(
                 user=request.user if request.user.is_authenticated else None,
                 session_key=request.session.session_key,
@@ -270,9 +275,11 @@ class CheckoutView(View):
                 payment_method=request.POST.get('payment_method'),
                 contact_email=request.POST.get('email'),
                 contact_phone=request.POST.get('phone'),
-                shipping_address=request.POST.get('address')
+                shipping_address=request.POST.get('address'),
+                is_paid=False,
             )
             
+            # Add order items
             for slug, item in cart.items():
                 try:
                     product = SafeProduct.objects.get(slug=slug)
@@ -285,15 +292,88 @@ class CheckoutView(View):
                 except SafeProduct.DoesNotExist:
                     continue
             
-            request.session['cart'] = {}
-            request.session.modified = True
-            logger.debug(f"Order #{order.order_number} created, cart cleared, Session Key: {request.session.session_key}")
-            messages.success(request, "Order placed successfully!")
-            return redirect('store:order_confirmation', order_id=order.id)
+            # Handle payment
+            if order.payment_method == 'MPESA':
+                formatted_phone = format_phone(request.POST.get('phone'))
+                response = initiate_stk_push(formatted_phone, order.total_price, order.id)
+                if response.get('ResponseCode') == '0':
+                    order.checkout_request_id = response.get('CheckoutRequestID')
+                    order.save()
+                    return JsonResponse({
+                        'status': 'success',
+                        'message': 'M-Pesa payment initiated. Please complete the payment on your phone.',
+                        'redirect_url': reverse('store:payment_pending', kwargs={'order_id': order.id})
+                    })
+                else:
+                    order.delete()
+                    logger.error(f"M-Pesa initiation failed for order {order.order_number}: {response}")
+                    return JsonResponse({
+                        'status': 'error',
+                        'message': 'Failed to initiate M-Pesa payment. Please try again.'
+                    }, status=400)
+            
+            elif order.payment_method in ['VISA', 'MASTERCARD']:
+                payment_intent = create_payment_intent(order)
+                if payment_intent:
+                    return JsonResponse({
+                        'status': 'success',
+                        'client_secret': payment_intent.client_secret,
+                        'order_id': order.id
+                    })
+                else:
+                    order.delete()
+                    logger.error(f"Stripe payment intent creation failed for order {order.order_number}")
+                    return JsonResponse({
+                        'status': 'error',
+                        'message': 'Failed to initiate card payment. Please try again.'
+                    }, status=400)
+            
         except Exception as e:
             logger.error(f"Error processing order: {str(e)}, Session Key: {request.session.session_key}")
-            messages.error(request, f"Error processing order: {str(e)}")
-            return redirect('store:checkout')
+            return JsonResponse({
+                'status': 'error',
+                'message': f"Error processing order: {str(e)}"
+            }, status=400)
+
+@csrf_exempt
+def mpesa_callback(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            result_code = data['Body']['stkCallback']['ResultCode']
+            order_id = data['Body']['stkCallback']['Metadata'][0]['Value'].split('-')[1]
+            order = get_object_or_404(Order, id=order_id)
+            
+            if result_code == 0:
+                order.is_paid = True
+                order.save()
+                clear_cart(request, order.session_key)
+                logger.info(f"M-Pesa payment successful for order {order.order_number}")
+                return HttpResponse(status=200)
+            else:
+                order.delete()
+                logger.error(f"M-Pesa payment failed for order {order.order_number}: {data['Body']['stkCallback']['ResultDesc']}")
+                return HttpResponse(status=200)
+        except Exception as e:
+            logger.error(f"Error in M-Pesa callback: {str(e)}")
+            return HttpResponse(status=400)
+    return HttpResponse(status=400)
+
+def payment_pending(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    return render(request, 'store/payment_pending.html', {'order': order})
+
+def payment_success(request):
+    order_id = request.GET.get('order_id')
+    order = get_object_or_404(Order, id=order_id)
+    if not order.is_paid:
+        order.is_paid = True
+        order.save()
+        clear_cart(request, order.session_key)
+    return render(request, 'store/payment_success.html', {'order': order})
+
+def payment_failure(request):
+    return render(request, 'store/payment_failure.html')
 
 def order_confirmation(request, order_id):
     order = get_object_or_404(Order, id=order_id)
@@ -322,3 +402,20 @@ def debug_session(request):
         'session_wishlist': request.session.get('wishlist', []),
         'session_key': request.session.session_key,
     })
+
+def format_phone(phone):
+    """Format phone number to +254 format for M-Pesa"""
+    phone = phone.strip().replace(' ', '')
+    if phone.startswith('0'):
+        return f"+254{phone[1:]}"
+    elif phone.startswith('+254'):
+        return phone
+    elif phone.startswith('254'):
+        return f"+254{phone[3:]}"
+    return phone
+
+def clear_cart(request, session_key):
+    """Clear cart for the given session"""
+    request.session['cart'] = {}
+    request.session.modified = True
+    logger.debug(f"Cart cleared for session {session_key}")
