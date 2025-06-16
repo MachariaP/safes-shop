@@ -1,4 +1,3 @@
-```markdown
 # Diplomat Safes E-commerce Platform
 
 A modern e-commerce platform for Diplomat Safes, offering premium security solutions. Built with Django and Bootstrap 5, it provides secure shopping with M-Pesa, Visa, Mastercard payments, and social authentication.
@@ -29,6 +28,7 @@ A modern e-commerce platform for Diplomat Safes, offering premium security solut
 ## Code Snippets
 
 ### Cart Functionality (`static/js/cart.js`)
+
 ```javascript
 document.addEventListener('DOMContentLoaded', () => {
     const cart = {
@@ -77,37 +77,20 @@ def initiate_mpesa_payment(request):
 
 Installation
 
-1.  Install Prerequisites:
-    
-    -   Python 3.10+
-        
-    -   PostgreSQL 14+
-        
-    -   Git
-        
-2.  Set Up Virtual Environment:
-    
+1. Install Prerequisites:
+    - Python 3.10+
+    - PostgreSQL 14+
+    - Git
+2. Set Up Virtual Environment:
     bash
-    
-    ```bash
     python -m venv venv
     source venv/bin/activate  # Linux/Mac
     venv\Scripts\activate     # Windows
-    ```
-    
-3.  Install Dependencies:
-    
+3. Install Dependencies:
     bash
-    
-    ```bash
     pip install -r requirements.txt
-    ```
-    
-4.  Configure Environment: Create .env in the project root:
-    
+4. Configure Environment: Create .env in the project root
     ini
-    
-    ```ini
     SECRET_KEY=your_secret_key_here
     DEBUG=True
     ALLOWED_HOSTS=localhost,127.0.0.1
@@ -127,50 +110,26 @@ Installation
     GOOGLE_CLIENT_SECRET=your_google_client_secret
     FACEBOOK_APP_ID=your_facebook_app_id
     FACEBOOK_SECRET=your_facebook_secret
-    ```
-    
-5.  Run Migrations:
-    
+5. Run Migrations:
     bash
-    
-    ```bash
     python manage.py migrate
-    ```
-    
-6.  Create Superuser:
-    
+6. Create Superuser:
     bash
-    
-    ```bash
     python manage.py createsuperuser
-    ```
-    
-7.  Collect Static Files:
-    
+7. Collect Static Files:
     bash
-    
-    ```bash
     python manage.py collectstatic
-    ```
-    
-8.  Start Server:
-    
+8. Start Server:
     bash
-    
-    ```bash
     python manage.py runserver
-    ```
-    
     Access at http://127.0.0.1:8000.
-    
-
-License
+    License
 
 MIT License. See LICENSE for details.
 
 Contact
 
-Email: your.email@example.com (mailto:your.email@example.com)
+Email: walburphinehas78@gmail.com (mailto:walburphinehas78@gmail.com)
 
 ----------
 
