@@ -1,10 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse, Http404
 from django.views.decorators.http import require_POST
 from django.template.loader import render_to_string
 from django.core.paginator import Paginator
-from django.views.generic import View
+from django.views.generic import View, DetailView
 import json
 import logging
 import uuid
@@ -304,6 +305,16 @@ def order_detail(request, order_number):
     else:
         order = get_object_or_404(Order, order_number=order_number, session_key=request.session.session_key)
     return render(request, 'store/order_detail.html', {'order': order})
+
+class OrderDetailView(LoginRequiredMixin, DetailView):
+    model = Order
+    template_name = 'store/order_detail.html'
+    context_object_name = 'order'
+    slug_field = 'order_number'
+    slug_url_kwarg = 'order_number'
+
+    def get_queryset(self):
+        return Order.objects.filter(user=self.request.user)
 
 def debug_session(request):
     return JsonResponse({
