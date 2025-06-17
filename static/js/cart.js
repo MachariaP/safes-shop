@@ -6,6 +6,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const emptyCartMessage = document.querySelector('.empty-cart');
     let isFetching = false; // Prevent multiple simultaneous fetches
 
+    /**
+     * Get the CSRF token from cookies.
+     * @returns {string} The CSRF token value.
+     */
     function getCSRFToken() {
         const name = 'csrftoken';
         const cookies = document.cookie.split(';');
@@ -16,7 +20,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return '';
     }
 
-    // Debounce function to limit fetchCart calls
+    /**
+     * Debounce function to limit the rate of function calls.
+     * @param {Function} func The function to debounce.
+     * @param {number} wait Time to wait in milliseconds.
+     * @returns {Function} The debounced function.
+     */
     function debounce(func, wait) {
         let timeout;
         return function (...args) {
@@ -25,7 +34,10 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // Fetch and update cart content
+    /**
+     * Fetch and update cart content from the server.
+     * @returns {Promise<void>}
+     */
     async function fetchCart() {
         if (isFetching) return; // Skip if already fetching
         isFetching = true;
@@ -43,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (cartTableBody && cartSummary) {
                     // Update cart table
                     const itemsHtml = data.cart_items.map(item => `
-                        <tr>
+                        <tr class="cart-item" data-slug="${item.product.slug}" data-price="${item.price}">
                             <td>
                                 <div class="d-flex align-items-center">
                                     <img src="${item.image}" alt="${item.product.name}" class="cart-item-img me-3">
@@ -91,8 +103,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Sync cart changes with server
-    async function syncCartWithServer(slug, quantity) {
+    /**
+     * Sync the full cart state with the server, including updates and removals.
+     * @param {Object} updatedCart The updated cart state from the UI.
+     * @returns {Promise<void>}
+     */
+    async function syncCartWithServer(updatedCart) {
         try {
             const response = await fetch('/store/update-cart/', {
                 method: 'POST',
@@ -101,12 +117,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     'X-CSRFToken': getCSRFToken(),
                     'X-Requested-With': 'XMLHttpRequest',
                 },
-                body: JSON.stringify({ cart: { [slug]: { quantity, price: null } } }), // Price validated server-side
+                body: JSON.stringify({ cart: updatedCart }),
             });
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const data = await response.json();
             if (data.status === 'success') {
-                console.log('Cart synced successfully');
+                console.log('Cart synced successfully:', data);
                 fetchCart(); // Refresh cart view
             } else {
                 console.warn('Cart sync failed:', data.message);
@@ -116,46 +132,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Remove item from cart
-    async function removeItem(slug) {
-        try {
-            const response = await fetch('/store/update-cart/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCSRFToken(),
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-                body: JSON.stringify({ cart: {} }), // Empty cart for removal
-            });
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            const data = await response.json();
-            if (data.status === 'success') {
-                console.log('Item removed successfully');
-                fetchCart(); // Refresh cart view
-            }
-        } catch (error) {
-            console.error('Error removing item:', error);
-        }
-    }
-
-    // Bind event listeners for quantity inputs and remove buttons
+    /**
+     * Bind event listeners for quantity inputs and remove buttons.
+     */
     function bindEventListeners() {
         const quantityInputs = document.querySelectorAll('.quantity-input');
         const removeButtons = document.querySelectorAll('.btn-remove');
 
         quantityInputs.forEach(input => {
-            input.removeEventListener('change', handleQuantityChange); // Prevent duplicate listeners
+            input.removeEventListener('change', handleQuantityChange);
             input.addEventListener('change', handleQuantityChange);
         });
 
         removeButtons.forEach(button => {
-            button.removeEventListener('click', handleRemoveClick); // Prevent duplicate listeners
+            button.removeEventListener('click', handleRemoveClick);
             button.addEventListener('click', handleRemoveClick);
         });
     }
 
-    // Handlers for quantity and remove events
+    /**
+     * Handle quantity change events for cart items.
+     * @param {Event} e The change event.
+     */
     const handleQuantityChange = async (e) => {
         const slug = e.target.dataset.slug;
         const quantity = parseInt(e.target.value);
@@ -163,12 +161,43 @@ document.addEventListener('DOMContentLoaded', () => {
             e.target.value = 1;
             return;
         }
-        await syncCartWithServer(slug, quantity);
+
+        // Build the full cart state
+        const cart = {};
+        document.querySelectorAll('.cart-item').forEach(item => {
+            const itemSlug = item.dataset.slug;
+            const input = item.querySelector('.quantity-input');
+            const itemQuantity = parseInt(input.value) || 0;
+            if (itemQuantity > 0) {
+                cart[itemSlug] = {
+                    quantity: itemQuantity,
+                    price: item.dataset.price,
+                };
+            }
+        });
+        await syncCartWithServer(cart);
     };
 
+    /**
+     * Handle remove button clicks for cart items.
+     * @param {Event} e The click event.
+     */
     const handleRemoveClick = async (e) => {
         const slug = e.target.closest('.btn-remove').dataset.slug;
-        await removeItem(slug);
+
+        // Build the full cart state with the removed item's quantity set to 0
+        const cart = {};
+        document.querySelectorAll('.cart-item').forEach(item => {
+            const itemSlug = item.dataset.slug;
+            const input = item.querySelector('.quantity-input');
+            const itemQuantity = parseInt(input.value) || 0;
+            if (itemSlug === slug) {
+                cart[itemSlug] = { quantity: 0, price: item.dataset.price }; // Mark for removal
+            } else if (itemQuantity > 0) {
+                cart[itemSlug] = { quantity: itemQuantity, price: item.dataset.price }; // Keep other items
+            }
+        });
+        await syncCartWithServer(cart);
     };
 
     // Debounced fetchCart to prevent excessive calls
@@ -176,4 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initial cart fetch
     debouncedFetchCart();
+
+    // Periodically refresh cart (optional)
+    setInterval(debouncedFetchCart, 30000); // Refresh every 30 seconds
 });
