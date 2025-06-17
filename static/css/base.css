@@ -1,3 +1,4 @@
+/* Define global CSS variables for maintainability */
 :root {
     --primary: #1a3a6c;
     --secondary: #c0a062;
@@ -10,28 +11,29 @@
     --transition: all 0.3s ease;
 }
 
+/* Reset default margins and padding, enable box-sizing */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+/* Base body styles (background set in base.html) */
 body {
     font-family: 'Roboto', sans-serif;
     color: #333;
-    background-color: #fafafa;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
 }
 
-/* Typography */
+/* Typography styles using Montserrat for headings */
 h1, h2, h3, h4, h5, h6 {
     font-family: 'Montserrat', sans-serif;
     font-weight: 600;
 }
 
-/* Announcement Bar */
+/* Announcement Bar styling */
 .announcement-bar {
     background-color: var(--primary);
     color: white;
@@ -48,7 +50,7 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--secondary);
 }
 
-/* Navigation */
+/* Navigation bar styles with scroll effect */
 .navbar {
     padding: 0.8rem 0;
     transition: var(--transition);
@@ -114,7 +116,7 @@ h1, h2, h3, h4, h5, h6 {
     background-color: var(--secondary);
 }
 
-/* Cart Badge */
+/* Cart badge styling */
 .navbar .badge {
     font-size: 0.75rem;
     background-color: var(--primary);
@@ -122,15 +124,16 @@ h1, h2, h3, h4, h5, h6 {
     position: relative;
 }
 
-/* Main Content */
+/* Main content area */
 main {
     flex: 1;
     padding-top: 30px;
     padding-bottom: 60px;
 }
 
-/* Cart Page Styles */
-.cart-table th, .cart-table td {
+/* Cart page specific styles */
+.cart-table th,
+.cart-table td {
     vertical-align: middle;
     font-size: 0.95rem;
 }
@@ -214,9 +217,8 @@ main {
     margin-bottom: 20px;
 }
 
-/* Footer */
+/* Footer styling */
 footer {
-    background: linear-gradient(to right, #0d1f3a, #1a3a6c);
     color: #ddd;
 }
 
@@ -267,7 +269,7 @@ footer ul li {
     transform: translateY(-3px);
 }
 
-/* Buttons */
+/* Generic button styles */
 .btn-primary {
     background-color: var(--primary);
     border-color: var(--primary);
@@ -283,7 +285,7 @@ footer ul li {
     box-shadow: var(--box-shadow);
 }
 
-/* Utility Classes */
+/* Utility classes */
 .shadow-sm {
     box-shadow: var(--box-shadow) !important;
 }
@@ -292,7 +294,7 @@ footer ul li {
     border-radius: var(--border-radius);
 }
 
-/* Responsive Adjustments */
+/* Responsive design adjustments */
 @media (max-width: 991px) {
     .navbar-collapse {
         padding-top: 15px;
