@@ -11,6 +11,51 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+    
+    <!-- Inline styles for global enhancements -->
+    <style>
+        /* Apply gradient background to body */
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e0e8f0 100%);
+            background-attachment: fixed; /* Keeps gradient fixed during scroll */
+            min-height: 100vh;
+        }
+
+        /* Fade-in animation for cards and content */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px); /* Slight upward movement */
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animated-card {
+            animation: fadeIn 0.8s ease-out forwards; /* forwards keeps final state */
+            opacity: 0; /* Initial state */
+        }
+
+        /* Enhanced CTA button styles */
+        .cta-button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-weight: 500;
+            border-radius: var(--border-radius, 8px); /* Fallback to CSS variable */
+            transition: all 0.3s ease;
+        }
+
+        .cta-button:hover {
+            background-color: #218838;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+    
     {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -81,7 +126,7 @@
                             <a class="nav-link" href="{% url 'account_login' %}"><i class="fas fa-sign-in-alt"></i> Login</a>
                         </li>
                         <li class="nav-item">
-                            <a class="btn btn-primary ms-2" href="{% url 'account_signup' %}">Register</a>
+                            <a class="btn btn-primary ms-2 cta-button" href="{% url 'account_signup' %}">Register</a>
                         </li>
                     {% endif %}
                 </ul>
@@ -90,8 +135,10 @@
     </nav>
 
     <main>
-        {% block content %}
-        {% endblock %}
+        <div class="container">
+            {% block content %}
+            {% endblock %}
+        </div>
     </main>
 
     <footer class="bg-dark text-white pt-5 pb-4">
@@ -134,7 +181,7 @@
                         {% csrf_token %}
                         <div class="input-group">
                             <input type="email" class="form-control" placeholder="Your Email" aria-label="Email" required>
-                            <button class="btn btn-primary" type="submit">Subscribe</button>
+                            <button class="btn btn-primary cta-button" type="submit">Subscribe</button>
                         </div>
                         {% if messages %}
                             {% for message in messages %}
@@ -170,9 +217,11 @@
 
     <!-- Cart badge update script -->
     <script>
+        // Document ready handler for cart badge updates
         document.addEventListener('DOMContentLoaded', () => {
             const cartBadge = document.getElementById('cartBadge');
 
+            // Async function to update cart badge count
             async function updateCartBadge() {
                 try {
                     const response = await fetch('{% url "store:cart" %}', {
@@ -194,13 +243,13 @@
                 }
             }
 
-            // Initial update
+            // Initial badge update on page load
             updateCartBadge();
 
-            // Listen for cart updates (e.g., after adding/removing items)
+            // Listen for cart update events (e.g., after adding/removing items)
             window.addEventListener('cartUpdated', updateCartBadge);
 
-            // Clear badge after order confirmation
+            // Reset badge after order confirmation
             if (window.location.pathname.includes('/store/order-confirmation/')) {
                 updateCartBadge(); // Reset to 0 since cart is cleared
             }
