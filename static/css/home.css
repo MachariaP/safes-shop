@@ -1,6 +1,6 @@
 /* static/css/home.css */
-
 /* ===== GENERAL STYLES ===== */
+/* Defines typography and base styling for the home page */
 body {
     font-family: 'Roboto', sans-serif;
     color: #333;
@@ -25,6 +25,7 @@ p {
 }
 
 /* ===== SPACING & LAYOUT ===== */
+/* Sets max width and padding for sections */
 .container {
     max-width: 1200px;
 }
@@ -56,6 +57,7 @@ p {
 }
 
 /* ===== HERO SECTION ===== */
+/* Styles for the hero image and badge with hover effect */
 .hero-section .hero-img-container img {
     border-radius: 10px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
