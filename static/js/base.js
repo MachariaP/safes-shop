@@ -1,14 +1,12 @@
 // static/js/base.js
+// Handles DOM-ready initialization and interactive features for the Diplomat Safes website
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Navbar scroll effect
+    // Navbar scroll effect: Adds shadow on scroll past 50px
     const navbar = document.querySelector('.navbar');
     if (navbar) {
         window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) {
-                navbar.classList.add('navbar-scrolled');
-            } else {
-                navbar.classList.remove('navbar-scrolled');
-            }
+            navbar.classList.toggle('navbar-scrolled', window.scrollY > 50);
         });
     }
 
@@ -43,38 +41,40 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Update cart badge
+    // Cart badge update functionality
     function updateCartBadge() {
         const cart = JSON.parse(localStorage.getItem('cart')) || {};
         const cartBadge = document.getElementById('cartBadge');
         let itemCount = 0;
+
         for (const slug in cart) {
-            itemCount += cart[slug].quantity;
+            itemCount += cart[slug].quantity || 0; // Default to 0 if quantity is undefined
         }
+
         if (cartBadge) {
             cartBadge.textContent = itemCount;
         }
     }
 
-    // Initial badge update
+    // Initialize cart badge on page load
     updateCartBadge();
 
-    // Listen for cart updates from other scripts
+    // Listen for cart update events from other scripts
     window.addEventListener('cartUpdated', updateCartBadge);
 
-    // Clear localStorage after checkout
+    // Clear cart and update badge after order confirmation
     if (window.location.pathname.includes('/store/order-confirmation/')) {
         localStorage.removeItem('cart');
         updateCartBadge();
     }
 
-    // Helper function for email validation
+    // Helper function to validate email format
     function isValidEmail(email) {
-        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return re.test(email);
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
     }
 
-    // Helper function to get CSRF token
+    // Helper function to retrieve CSRF token from cookies
     function getCSRFToken() {
         const name = 'csrftoken';
         const cookies = document.cookie.split(';');
