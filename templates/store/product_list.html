@@ -15,27 +15,42 @@
                 Our Products
             {% endif %}
         </h2>
-        <div class="row">
+        {% if products %}
             {% for product in products %}
-            <div class="col-md-6 col-lg-3 mb-4">
-                <div class="card">
-                    <img src="{{ product.image.url|default:'https://via.placeholder.com/250' }}" class="card-img-top" alt="{{ product.name }}">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ product.name }}</h5>
-                        <p class="card-text">{{ product.description|truncatewords:20|safe }}</p>
-                        <p class="text-muted">Ksh {{ product.price|floatformat:2 }}</p>
-                    </div>
-                    <div class="card-footer">
-                        <a href="{% url 'store:product_detail' product.slug %}" class="btn btn-outline-primary w-100">View Details</a>
+                {% if forloop.counter0|divisibleby:3 %}
+                    <div class="row">
+                {% endif %}
+                <div class="col-md-6 col-lg-4 mb-4 animated-card" style="animation-delay: {{ forloop.counter0|divisibleby:3|yesno:'0,0.2s,0.4s' }};">
+                    <div class="card h-100">
+                        <img src="{{ product.image.url|default:'https://via.placeholder.com/250' }}" 
+                             class="card-img-top" 
+                             alt="{{ product.name }}"
+                             loading="lazy"
+                             width="250"
+                             height="250">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text">{{ product.description|truncatewords:20|safe }}</p>
+                            <p class="text-muted">Ksh {{ product.price|floatformat:2 }}</p>
+                        </div>
+                        <div class="card-footer">
+                            <div class="d-flex flex-column gap-2">
+                                <a href="{% url 'store:product_detail' product.slug %}" class="btn btn-outline-primary w-100">View Details</a>
+                                <button class="btn btn-primary add-to-cart w-100" 
+                                        data-slug="{{ product.slug }}"><i class="fas fa-shopping-cart"></i> Add to Cart</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            {% empty %}
+                {% if forloop.counter|divisibleby:3 or forloop.last %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% else %}
             <div class="col-12 text-center">
                 <p>No products found in this category.</p>
             </div>
-            {% endfor %}
-        </div>
+        {% endif %}
         <!-- Pagination -->
         {% if page_obj and page_obj.paginator.num_pages > 1 %}
         <nav aria-label="Page navigation">
@@ -56,4 +71,21 @@
         {% endif %}
     </div>
 </section>
+
+<!-- Toast Notifications -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="cartToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header bg-primary text-white">
+            <strong class="me-auto"><i class="fas fa-check-circle me-2"></i>Added to Cart</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="cartToastBody">
+            <!-- Message will be set dynamically by JavaScript -->
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/product_list.js' %}"></script>
 {% endblock %}

@@ -1,4 +1,4 @@
-/* static/css/product-list.css */
+/* static/css/product_list.css */
 
 :root {
     --primary: #1a3a6c;
@@ -24,6 +24,8 @@
     transition: var(--transition);
     overflow: hidden;
     height: 100%;
+    margin: 0 auto;
+    max-width: 320px; /* Maintains good internal space */
 }
 
 .card:hover {
@@ -33,7 +35,7 @@
 
 .card-img-top {
     width: 100%;
-    height: 250px;
+    height: 250px; /* Maintains larger images */
     object-fit: cover;
     border-radius: var(--border-radius) var(--border-radius) 0 0;
     transition: var(--transition);
@@ -48,16 +50,16 @@
 }
 
 .card-title {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     font-weight: 600;
     color: var(--dark);
     margin-bottom: 0.8rem;
-    min-height: 3rem;
+    min-height: 2.8rem;
 }
 
 .card-text {
     color: var(--gray);
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     min-height: 60px;
     margin-bottom: 1rem;
 }
@@ -71,7 +73,7 @@
 .btn-outline-primary {
     border: 2px solid var(--primary);
     color: var(--primary);
-    padding: 0.5rem 1.2rem;
+    padding: 0.5rem 1rem;
     font-weight: 600;
     transition: var(--transition);
     border-radius: 8px;
@@ -79,7 +81,27 @@
 
 .btn-outline-primary:hover {
     background: var(--primary);
+    color: white; /* Ensures text is visible on hover */
+    transform: translateY(-2px);
+}
+
+.btn-primary {
+    background: var(--primary);
     color: white;
+    padding: 0.6rem 1.2rem; /* Slightly adjusted for better fit */
+    font-weight: 600;
+    transition: var(--transition);
+    border-radius: 8px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-primary:hover {
+    background: #162f59; /* Darker shade for better contrast */
+    color: white; /* Ensures text remains visible */
     transform: translateY(-2px);
 }
 
@@ -87,7 +109,42 @@
     color: var(--gray) !important;
 }
 
-@media (max-width: 768px) {
+/* Animation for cards */
+.animated-card {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Adjust spacing between cards */
+.row {
+    margin-left: -8px; /* Further reduced for tighter layout */
+    margin-right: -8px;
+}
+
+.col-lg-4 {
+    padding: 8px; /* Reduced to minimize gaps further */
+}
+
+/* Responsive design */
+@media (max-width: 991px) {
+    .col-md-6 {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+    .card {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
     .col-md-6 {
         flex: 0 0 100%;
         max-width: 100%;
@@ -96,6 +153,6 @@
         height: 200px;
     }
     .card-title {
-        font-size: 1.1rem;
+        font-size: 1rem;
     }
 }

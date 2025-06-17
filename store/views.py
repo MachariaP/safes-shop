@@ -8,11 +8,11 @@ from django.template.loader import render_to_string
 from django.core.paginator import Paginator
 from django.views.generic import View, DetailView
 from django.conf import settings
-from django.urls import reverse  # Added import
+from django.urls import reverse
 import json
 import logging
 import uuid
-from .models import SafeProduct, StoreLocation, CartItem, WishlistItem, Order, OrderItem
+from .models import SafeProduct, StoreLocation, WishlistItem, Order, OrderItem
 from .mpesa import initiate_stk_push
 from .stripe import create_payment_intent
 
@@ -50,7 +50,7 @@ def product_list(request, category=None):
     # Pagination
     page_obj = None
     if products.exists():
-        paginator = Paginator(products, 8)  # 8 products per page
+        paginator = Paginator(products, 6)  # 6 products per page
         page_number = request.GET.get('page', 1)
         try:
             page_obj = paginator.get_page(page_number)
@@ -84,27 +84,55 @@ def product_detail(request, slug):
     logger.debug(f"Viewing product detail: {slug}")
     return render(request, 'store/product_detail.html', {'product': product})
 
-def add_to_cart(request, slug):
-    if request.method == 'POST':
-        product = get_object_or_404(SafeProduct, slug=slug)
-        quantity = int(request.POST.get('quantity', 1))
+@require_POST
+def add_to_cart(request):
+    try:
+        # Handle JSON or POST data
+        if request.content_type == 'application/json':
+            data = json.loads(request.body)
+            logger.debug(f"JSON POST to add_to_cart: {data}")
+        else:
+            data = request.POST
+            logger.debug(f"Form POST to add_to_cart: {data}")
+        
+        product_id = data.get('product_id')
+        slug = data.get('slug')
+        quantity = int(data.get('quantity', 1))
         if quantity < 1:
             quantity = 1
-        cart = request.session.get('cart', {})
-        if slug in cart:
-            cart[slug]['quantity'] += quantity
+
+        # Get product
+        if product_id:
+            product = get_object_or_404(SafeProduct, id=product_id)
+        elif slug:
+            product = get_object_or_404(SafeProduct, slug=slug)
         else:
-            cart[slug] = {'quantity': quantity, 'price': str(product.price)}
+            raise ValueError("Product ID or slug is required")
+
+        cart = request.session.get('cart', {})
+        if product.slug in cart:
+            cart[product.slug]['quantity'] += quantity
+        else:
+            cart[product.slug] = {'quantity': quantity, 'price': str(product.price)}
         request.session['cart'] = cart
         request.session.modified = True
-        logger.debug(f"Added to cart: {slug}, Quantity: {quantity}, Session Cart: {cart}, Session Key: {request.session.session_key}")
+        logger.debug(f"Added to cart: {product.slug}, Quantity: {quantity}, Session Cart: {cart}, Session Key: {request.session.session_key}")
         return JsonResponse({
             'status': 'success',
             'message': f"{product.name} added to cart",
             'price': str(product.price),
+            'cart_count': sum(item['quantity'] for item in cart.values()),
         })
-    logger.warning(f"Invalid add_to_cart request for {slug}")
-    return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
+    except ValueError as e:
+        logger.warning(f"Invalid add_to_cart request: {str(e)}")
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    except SafeProduct.DoesNotExist:
+        logger.warning(f"Product not found for ID: {product_id} or slug: {slug}")
+        return JsonResponse({'status': 'error', 'message': 'Product not found'}, status=404)
+    except Exception as e:
+        logger.error(f"Unexpected error in add_to_cart: {str(e)}")
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
 
 def add_to_wishlist(request, slug):
     if request.method == 'POST':
@@ -387,16 +415,6 @@ def order_detail(request, order_number):
     else:
         order = get_object_or_404(Order, order_number=order_number, session_key=request.session.session_key)
     return render(request, 'store/order_detail.html', {'order': order})
-
-class OrderDetailView(LoginRequiredMixin, DetailView):
-    model = Order
-    template_name = 'store/order_detail.html'
-    context_object_name = 'order'
-    slug_field = 'order_number'
-    slug_url_kwarg = 'order_number'
-
-    def get_queryset(self):
-        return Order.objects.filter(user=self.request.user)
 
 def debug_session(request):
     return JsonResponse({

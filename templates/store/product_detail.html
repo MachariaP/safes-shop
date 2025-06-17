@@ -67,7 +67,7 @@
                             {% endif %}
                         </ul>
                     </div>
-                    <form id="add-to-cart-form" method="POST" action="{% url 'store:add_to_cart' product.slug %}">
+                    <form id="add-to-cart-form">
                         {% csrf_token %}
                         <div class="quantity-selector">
                             <span class="quantity-label">Quantity:</span>
@@ -75,14 +75,14 @@
                                 <button type="button" class="quantity-btn" id="decreaseQty">
                                     <i class="fas fa-minus"></i>
                                 </button>
-                                <input type="number" class="quantity-input" id="productQty" name="quantity" value="1" min="1" max="10">
+                                <input type="number" class="quantity-input" id="productQty" value="1" min="1" max="10">
                                 <button type="button" class="quantity-btn" id="increaseQty">
                                     <i class="fas fa-plus"></i>
                                 </button>
                             </div>
                         </div>
                         <div class="action-buttons">
-                            <button type="submit" class="btn btn-primary" id="addToCart" data-slug="{{ product.slug }}">
+                            <button type="submit" class="btn btn-primary add-to-cart" id="addToCart" data-slug="{{ product.slug }}">
                                 <i class="fas fa-shopping-cart"></i> Add to Cart
                             </button>
                         </div>
@@ -91,7 +91,7 @@
                         {% csrf_token %}
                         <div class="action-buttons">
                             <button type="submit" class="btn btn-outline-primary" id="addToWishlist" data-slug="{{ product.slug }}">
-                                <i class="fas fa-heart"></i> Wishlist
+                                <i class="fas fa-heart"></i> Add to Wishlist
                             </button>
                         </div>
                     </form>
@@ -113,24 +113,22 @@
 
 <!-- Toast Notifications -->
 <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
-    <!-- Cart Toast -->
     <div id="cartToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header bg-primary text-white">
             <strong class="me-auto"><i class="fas fa-check-circle me-2"></i>Added to Cart</strong>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
-        <div class="toast-body">
-            <strong>{{ product.name }}</strong> has been added to your shopping cart.
+        <div class="toast-body" id="cartToastBody">
+            <!-- Message will be set dynamically by JavaScript -->
         </div>
     </div>
-    <!-- Wishlist Toast -->
     <div id="wishlistToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header bg-success text-white">
             <strong class="me-auto"><i class="fas fa-heart me-2"></i>Wishlist Updated</strong>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
         <div class="toast-body" id="wishlistToastBody">
-            <!-- Message will be set by JavaScript -->
+            <!-- Message will be set dynamically by JavaScript -->
         </div>
     </div>
 </div>
