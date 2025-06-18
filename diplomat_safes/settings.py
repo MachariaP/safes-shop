@@ -178,13 +178,13 @@ CKEDITOR_CONFIGS = {
 SILENCED_SYSTEM_CHECKS = ['ckeditor.W001']
 
 JAZZMIN_SETTINGS = {
-    "site_title": "Safes Shop Admin",
-    "site_header": "Safes Shop",
-    "site_brand": "Safes Shop",
-    "site_logo": "img/logo.png",  # Place logo in static/img/logo.png
-    "welcome_sign": "Welcome to Safes Shop Admin",
-    "copyright": "Safes Shop Ltd",
-    "search_model": ["store.Product", "users.CustomUser"],  # Adjust to your models
+    "site_title": "Diplomat Safes Admin",
+    "site_header": "Diplomat Safes",
+    "site_brand": "Diplomat Safes",
+    "site_logo": "img/logo.png",
+    "welcome_sign": "Welcome to Diplomat Safes Admin",
+    "copyright": "Diplomat Safes Ltd",
+    "search_model": "store.SafeProduct",  # Simplified to one model for now
     "topmenu_links": [
         {"name": "Home", "url": "admin:index", "permissions": ["auth.view_user"]},
         {"name": "View Site", "url": "/", "new_window": True},
@@ -193,14 +193,18 @@ JAZZMIN_SETTINGS = {
         {"name": "Support", "url": "https://example.com/support", "new_window": True},
     ],
     "show_sidebar": True,
-    "navigation_expanded": True,
-    "hide_apps": [],  # Hide specific apps if needed
-    "hide_models": [],  # Hide specific models
-    "order_with_respect_to": ["auth", "store", "users"],  # Order apps in sidebar
+    "navigation_expanded": False,  # Collapse sidebar by default for less clutter
+    "hide_apps": [],  # Keep all apps visible
+    "hide_models": [],  # Keep all models visible
+    "order_with_respect_to": ["auth", "users", "store", "core"],  # Custom app order
     "icons": {
         "users.CustomUser": "fas fa-user",
-        "store.Product": "fas fa-box",
-        "store.Category": "fas fa-tags",
+        "store.SafeProduct": "fas fa-box",
+        "store.ProductSpecification": "fas fa-list",
+        "store.StoreLocation": "fas fa-map-marker-alt",
+        "store.WishlistItem": "fas fa-heart",
+        "store.Order": "fas fa-shopping-cart",
+        "store.OrderItem": "fas fa-cart-plus",
         "core.TeamMember": "fas fa-user-tie",
         "core.Solution": "fas fa-lightbulb",
         "core.Testimonial": "fas fa-quote-left",
@@ -208,9 +212,12 @@ JAZZMIN_SETTINGS = {
     },
     "default_icon_parents": "fas fa-chevron-circle-right",
     "default_icon_children": "fas fa-circle",
-    "changeform_format": "horizontal_tabs",  # Options: horizontal_tabs, vertical_tabs, collapsible, carousel
-    "show_ui_builder": True,  # Enable UI customizer
+    "changeform_format": "horizontal_tabs",
+    "show_ui_builder": True,
+    "sidebar_fixed": True,  # Keep sidebar fixed for better navigation
+    "sidebar_nav_compact_style": True,  # Compact sidebar items
 }
+
 
 JAZZMIN_UI_TWEAKS = {
     "theme": "cyborg",  # Bootswatch theme for vivid look [][](https://djangocentral.com/making-django-admin-jazzy-with-django-jazzmin/)
