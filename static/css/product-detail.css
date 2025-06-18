@@ -22,7 +22,7 @@
 .product-image-container {
     position: relative;
     overflow: hidden;
-    height: 450px; /* Maintained for visibility */
+    height: 450px;
     border-radius: var(--border-radius) 0 0 var(--border-radius);
 }
 
@@ -118,6 +118,38 @@
     margin-top: 3px;
 }
 
+.specs-icon img {
+    width: 20px;
+    height: 20px;
+    transition: filter 0.3s ease;
+}
+
+.specs-icon.anti-theft img {
+    filter: hue-rotate(0deg) brightness(1.2) saturate(2); /* Red tint */
+}
+
+.specs-icon.dollar-sign img {
+    filter: hue-rotate(60deg) brightness(1.2) saturate(2); /* Yellowish tint */
+}
+
+.specs-icon.fire img {
+    filter: hue-rotate(30deg) brightness(1.2) saturate(2); /* Orangish tint */
+}
+
+.meta-icon img {
+    width: 20px;
+    height: 20px;
+    transition: filter 0.3s ease;
+}
+
+.meta-icon.truck img {
+    filter: hue-rotate(120deg) brightness(1.2) saturate(2); /* Greenish tint */
+}
+
+.meta-icon.shield img {
+    filter: hue-rotate(240deg) brightness(1.2) saturate(2); /* Purplish tint */
+}
+
 .action-buttons {
     display: flex;
     gap: 1rem;
@@ -140,8 +172,8 @@
 }
 
 .btn-primary:hover {
-    background: #162f59; /* Darker shade for better contrast */
-    color: white; /* Ensures text remains visible */
+    background: #162f59;
+    color: white;
     transform: translateY(-2px);
 }
 
@@ -161,27 +193,7 @@
 
 .btn-outline-primary:hover {
     background: var(--primary);
-    color: white; /* Ensures text is visible on hover */
-    transform: translateY(-2px);
-}
-
-.btn-success {
-    background: #28a745;
-    border: none;
-    padding: 0.8rem 1.8rem;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    transition: var(--transition);
-    flex: 1;
-    min-width: 200px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-}
-
-.btn-success:hover {
-    background: #218838;
+    color: white;
     transform: translateY(-2px);
 }
 
@@ -248,10 +260,6 @@
     gap: 8px;
     color: var(--gray);
     font-size: 0.95rem;
-}
-
-.meta-icon {
-    color: var(--primary);
 }
 
 .stock-badge {
