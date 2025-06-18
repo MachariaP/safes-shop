@@ -51,17 +51,23 @@
                         <ul class="specs-list">
                             {% if product.ivory_color %}
                                 <li>
-                                    <span class="specs-icon"><i class="fas fa-paint-brush"></i></span>
+                                    <span class="specs-icon">
+                                        <img src="{% static 'icons/anti-theft.svg' %}" alt="Color" width="20" height="20">
+                                    </span>
                                     <span>Ivory Color: <strong>Yes</strong></span>
                                 </li>
                             {% endif %}
                             <li>
-                                <span class="specs-icon"><i class="fas fa-dollar-sign"></i></span>
+                                <span class="specs-icon">
+                                    <img src="{% static 'icons/dollar-sign.svg' %}" alt="Price" width="20" height="20">
+                                </span>
                                 <span>Price: <strong>Ksh {{ product.price|floatformat:2 }}</strong></span>
                             </li>
                             {% if product.category == 'fireproof' %}
                                 <li>
-                                    <span class="specs-icon"><i class="fas fa-fire"></i></span>
+                                    <span class="specs-icon">
+                                        <img src="{% static 'icons/fire.svg' %}" alt="Fire Rating" width="20" height="20">
+                                    </span>
                                     <span>Fire Rating: <strong>Up to 1000°C for 60 min</strong></span>
                                 </li>
                             {% endif %}
@@ -83,7 +89,7 @@
                         </div>
                         <div class="action-buttons">
                             <button type="submit" class="btn btn-primary add-to-cart" id="addToCart" data-slug="{{ product.slug }}">
-                                <i class="fas fa-shopping-cart"></i> Add to Cart
+                                <span class="cart-icon">🛒</span> Add to Cart Now
                             </button>
                         </div>
                     </form>
@@ -97,11 +103,15 @@
                     </form>
                     <div class="product-meta">
                         <div class="meta-item">
-                            <span class="meta-icon"><i class="fas fa-truck"></i></span>
+                            <span class="meta-icon">
+                                <img src="{% static 'icons/truck.svg' %}" alt="Shipping" width="20" height="20">
+                            </span>
                             <span>Free Shipping & Returns</span>
                         </div>
                         <div class="meta-item">
-                            <span class="meta-icon"><i class="fas fa-shield-alt"></i></span>
+                            <span class="meta-icon">
+                                <img src="{% static 'icons/shield.svg' %}" alt="Warranty" width="20" height="20">
+                            </span>
                             <span>2-Year Warranty</span>
                         </div>
                     </div>
