@@ -15,6 +15,7 @@ ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
 
 # Application definition
 INSTALLED_APPS = [
+    'jazzmin',
     'store',
     'users',
     'payments',
@@ -175,6 +176,55 @@ CKEDITOR_CONFIGS = {
 }
 
 SILENCED_SYSTEM_CHECKS = ['ckeditor.W001']
+
+JAZZMIN_SETTINGS = {
+    "site_title": "Safes Shop Admin",
+    "site_header": "Safes Shop",
+    "site_brand": "Safes Shop",
+    "site_logo": "img/logo.png",  # Place logo in static/img/logo.png
+    "welcome_sign": "Welcome to Safes Shop Admin",
+    "copyright": "Safes Shop Ltd",
+    "search_model": ["store.Product", "users.CustomUser"],  # Adjust to your models
+    "topmenu_links": [
+        {"name": "Home", "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"name": "View Site", "url": "/", "new_window": True},
+    ],
+    "usermenu_links": [
+        {"name": "Support", "url": "https://example.com/support", "new_window": True},
+    ],
+    "show_sidebar": True,
+    "navigation_expanded": True,
+    "hide_apps": [],  # Hide specific apps if needed
+    "hide_models": [],  # Hide specific models
+    "order_with_respect_to": ["auth", "store", "users"],  # Order apps in sidebar
+    "icons": {
+        "users.CustomUser": "fas fa-user",
+        "store.Product": "fas fa-box",
+        "store.Category": "fas fa-tags",
+        "core.TeamMember": "fas fa-user-tie",
+        "core.Solution": "fas fa-lightbulb",
+        "core.Testimonial": "fas fa-quote-left",
+        "core.Profile": "fas fa-user",
+    },
+    "default_icon_parents": "fas fa-chevron-circle-right",
+    "default_icon_children": "fas fa-circle",
+    "changeform_format": "horizontal_tabs",  # Options: horizontal_tabs, vertical_tabs, collapsible, carousel
+    "show_ui_builder": True,  # Enable UI customizer
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "theme": "cyborg",  # Bootswatch theme for vivid look [][](https://djangocentral.com/making-django-admin-jazzy-with-django-jazzmin/)
+    "dark_mode_theme": "darkly",
+    "sidebar": "sidebar-dark-primary",
+    "navbar": "navbar-dark",
+    "brand_colour": "navbar-primary",
+    "accent": "accent-primary",
+    "sidebar_nav_compact_style": True,
+    "sidebar_disable_expand": False,
+    "sidebar_nav_child_indent": True,
+    "sidebar_nav_flat_style": True,
+    "footer_fixed": False,
+}
 
 # M-Pesa configuration
 MPESA_CONFIG = {
