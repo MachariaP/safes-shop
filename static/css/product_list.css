@@ -3,7 +3,7 @@
 :root {
     --primary: #1a3a6c;
     --secondary: #c0a062;
-    --accent: #27ae60;
+    --accent: #ff6200; /* Vibrant orange for call-to-action */
     --light: #f8f9fa;
     --dark: #212529;
     --gray: #6c757d;
@@ -46,6 +46,7 @@
     animation-delay: calc(var(--order) * 0.1s);
     position: relative;
     will-change: transform, opacity;
+    height: 100%; /* Ensure uniform height */
 }
 
 .product-card:hover {
@@ -81,6 +82,10 @@
 
 .product-content {
     padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    /* Remove fixed min-height to avoid squeezing */
 }
 
 .product-title {
@@ -105,12 +110,13 @@
     font-size: 0.9rem;
     margin: 1rem 0;
     min-height: 60px;
+    display: block; /* Hide description to maintain uniformity */
 }
 
 .spec-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.8rem;
+    gap: 1.2rem; /* Increased gap for better spacing */
     margin: 1.5rem 0;
 }
 
@@ -133,7 +139,6 @@
 .spec-icon img {
     width: 20px;
     height: 20px;
-    /* Colored icons */
     transition: filter 0.3s ease;
 }
 
@@ -148,12 +153,17 @@
 .spec-label {
     font-size: 0.85rem;
     color: var(--gray);
+    flex-shrink: 0; /* Prevent label from shrinking */
 }
 
 .spec-value {
     font-weight: 600;
     font-size: 1rem;
     color: var(--dark);
+    white-space: nowrap; /* Prevent wrapping */
+    text-overflow: ellipsis; /* Add ellipsis if overflow */
+    overflow: hidden; /* Hide overflow */
+    max-width: 100%; /* Ensure it respects container width */
 }
 
 .btn-outline-secondary {
@@ -186,7 +196,7 @@
     justify-content: center;
     width: 100%;
     padding: 1rem;
-    background: linear-gradient(45deg, var(--primary), darken(var(--primary), 10%));
+    background: linear-gradient(45deg, #ff6200, #ff8c00); /* Vibrant orange gradient */
     color: white;
     border: none;
     border-radius: var(--border-radius);
@@ -194,13 +204,14 @@
     font-size: 1.1rem;
     cursor: pointer;
     transition: var(--transition);
-    box-shadow: 0 4px 15px rgba(26, 58, 108, 0.3);
+    box-shadow: 0 4px 15px rgba(255, 98, 0, 0.3);
+    visibility: visible;
 }
 
 .cart-button:hover {
     transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(26, 58, 108, 0.4);
-    background: linear-gradient(45deg, darken(var(--primary), 10%), var(--primary));
+    box-shadow: 0 6px 20px rgba(255, 98, 0, 0.4);
+    background: linear-gradient(45deg, #ff8c00, #ff6200);
 }
 
 .cart-icon {
@@ -216,6 +227,10 @@
 .pagination-container {
     margin-top: 2rem;
     text-align: center;
+}
+
+.pagination {
+    justify-content: center;
 }
 
 .pagination .page-link {
@@ -247,6 +262,20 @@
     }
     .spec-grid {
         grid-template-columns: 1fr;
+    }
+    .product-content {
+        min-height: 250px;
+    }
+}
+
+@media (min-width: 769px) {
+    /* Adjust for laptop screens */
+    .spec-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)); /* More flexible columns */
+        gap: 1.5rem; /* Increased gap on larger screens */
+    }
+    .spec-value {
+        max-width: 120px; /* Limit width to prevent overflow on larger screens */
     }
 }
 
