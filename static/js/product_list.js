@@ -1,25 +1,21 @@
 // static/js/product_list.js
 document.addEventListener('DOMContentLoaded', () => {
     // Card Hover Effect
-    // Adds a lift and shadow effect on mouse hover
-    const cards = document.querySelectorAll('.card');
-
+    const cards = document.querySelectorAll('.product-card');
     cards.forEach(card => {
         card.addEventListener('mouseenter', () => {
-            card.style.transform = 'translateY(-5px)';
-            card.style.boxShadow = '0 12px 40px rgba(0, 0, 0, 0.12)';
+            card.style.transform = 'translateY(-8px)';
+            card.style.boxShadow = '0 15px 40px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.05)';
         });
-
         card.addEventListener('mouseleave', () => {
             card.style.transform = 'translateY(0)';
-            card.style.boxShadow = '0 8px 30px rgba(0, 0, 0, 0.08)';
+            card.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.03)';
         });
     });
 
     // Add to Cart Functionality
-    // Handles adding a product to the cart via AJAX
     const addToCartButtons = document.querySelectorAll('.add-to-cart');
-    const cartToast = document.querySelector('#cartToast') ? new bootstrap.Toast(document.querySelector('#cartToast'), { delay: 3000 }) : null;
+    const cartToast = document.querySelector('#cartToast') ? new bootstrap.Toast(document.querySelector('#cartToast')) : null;
     const cartToastBody = document.querySelector('#cartToastBody');
 
     if (!addToCartButtons.length) console.warn('No add-to-cart buttons found');
@@ -29,10 +25,12 @@ document.addEventListener('DOMContentLoaded', () => {
         button.addEventListener('click', async (e) => {
             e.preventDefault();
             const slug = button.getAttribute('data-slug');
-            const quantity = 1; // Default quantity for list view
-            console.log(`Attempting to add to cart: slug=${slug}, quantity=${quantity}`); // Debug log
+            const quantity = 1;
+            console.log(`Attempting to add to cart: slug=${slug}, quantity=${quantity}`);
 
             try {
+                button.disabled = true;
+                button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Adding...';
                 const response = await fetch('/store/add-to-cart/', {
                     method: 'POST',
                     headers: {
@@ -42,43 +40,40 @@ document.addEventListener('DOMContentLoaded', () => {
                     },
                     body: JSON.stringify({ slug, quantity }),
                 });
-                console.log(`Response Status: ${response.status}`); // Debug log
                 const data = await response.json();
-                console.log('Response Data:', data); // Debug log
+                console.log('Response Data:', data);
 
                 if (data.status === 'success') {
                     if (cartToast && cartToastBody) {
                         cartToastBody.textContent = data.message;
                         cartToast.show();
-                        button.innerHTML = '<i class="fas fa-check"></i> Added';
-                        button.classList.add('btn-success');
-                        button.classList.remove('btn-primary');
-                        button.disabled = true;
-                        setTimeout(() => {
-                            button.innerHTML = '<i class="fas fa-shopping-cart"></i> Add to Cart';
-                            button.classList.add('btn-primary');
-                            button.classList.remove('btn-success');
-                            button.disabled = false;
-                        }, 2000);
                     } else {
-                        alert(data.message); // Fallback
+                        alert(data.message);
                     }
-                    window.dispatchEvent(new Event('cartUpdated'));
                     const cartBadge = document.getElementById('cartBadge');
                     if (cartBadge) cartBadge.textContent = data.cart_count;
+                    button.innerHTML = '<i class="fas fa-check"></i> Added';
+                    button.classList.add('btn-success');
+                    button.classList.remove('btn-primary');
+                    setTimeout(() => {
+                        button.innerHTML = '<span class="cart-icon">🛒</span> Add to Cart Now';
+                        button.classList.add('btn-primary');
+                        button.classList.remove('btn-success');
+                        button.disabled = false;
+                    }, 2000);
                 } else {
-                    console.error('Server Error:', data.message);
                     alert(`Error: ${data.message}`);
                 }
             } catch (error) {
                 console.error('Fetch Error:', error);
                 alert('Failed to add to cart. Check console for details.');
+            } finally {
+                button.disabled = false;
+                button.innerHTML = '<span class="cart-icon">🛒</span> Add to Cart Now';
             }
         });
     });
 
-    // Helper function to get CSRF token
-    // Retrieves the CSRF token from cookies for AJAX requests
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -91,9 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         }
-        console.log(`CSRF Token: ${cookieValue}`); // Debug log
+        console.log(`CSRF Token: ${cookieValue}`);
         return cookieValue;
     }
-
-    // Note: "Load More" functionality removed to rely on Django pagination
 });
