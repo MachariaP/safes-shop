@@ -1,7 +1,6 @@
 // static/js/product-detail.js
 document.addEventListener('DOMContentLoaded', () => {
     // Quantity Control
-    // Handles incrementing and decrementing the quantity input
     const decreaseQty = document.getElementById('decreaseQty');
     const increaseQty = document.getElementById('increaseQty');
     const qtyInput = document.getElementById('productQty');
@@ -27,7 +26,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Image Gallery Functionality
-    // Allows switching the main image by clicking thumbnails
     const galleryThumbs = document.querySelectorAll('.gallery-thumb');
     const mainImage = document.getElementById('mainProductImage');
 
@@ -45,7 +43,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Helper function to get CSRF token
-    // Retrieves the CSRF token from cookies for AJAX requests
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -58,12 +55,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         }
-        console.log(`CSRF Token: ${cookieValue}`); // Debug log
+        console.log(`CSRF Token: ${cookieValue}`);
         return cookieValue;
     }
 
     // Add to Cart Functionality
-    // Handles adding a product to the cart via AJAX
     const addToCartForm = document.getElementById('add-to-cart-form');
     const cartToast = document.querySelector('#cartToast') ? new bootstrap.Toast(document.querySelector('#cartToast'), { delay: 3000 }) : null;
     const cartToastBody = document.querySelector('#cartToastBody');
@@ -74,9 +70,11 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const slug = addToCartBtn.getAttribute('data-slug');
             const quantity = parseInt(qtyInput.value);
-            console.log(`Attempting to add to cart: slug=${slug}, quantity=${quantity}`); // Debug log
+            console.log(`Attempting to add to cart: slug=${slug}, quantity=${quantity}`);
 
             try {
+                addToCartBtn.disabled = true;
+                addToCartBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Adding...';
                 const response = await fetch('/store/add-to-cart/', {
                     method: 'POST',
                     headers: {
@@ -86,9 +84,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     },
                     body: JSON.stringify({ slug, quantity }),
                 });
-                console.log(`Response Status: ${response.status}`); // Debug log
                 const data = await response.json();
-                console.log('Response Data:', data); // Debug log
+                console.log('Response Data:', data);
 
                 if (data.status === 'success') {
                     cartToastBody.textContent = data.message;
@@ -96,23 +93,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     addToCartBtn.innerHTML = '<i class="fas fa-check"></i> Added';
                     addToCartBtn.classList.add('btn-success');
                     addToCartBtn.classList.remove('btn-primary');
-                    addToCartBtn.disabled = true;
                     setTimeout(() => {
-                        addToCartBtn.innerHTML = '<i class="fas fa-shopping-cart"></i> Add to Cart';
+                        addToCartBtn.innerHTML = '<span class="cart-icon">🛒</span> Add to Cart Now';
                         addToCartBtn.classList.add('btn-primary');
                         addToCartBtn.classList.remove('btn-success');
                         addToCartBtn.disabled = false;
                     }, 2000);
-                    window.dispatchEvent(new Event('cartUpdated'));
                     const cartBadge = document.getElementById('cartBadge');
                     if (cartBadge) cartBadge.textContent = data.cart_count;
                 } else {
-                    console.error('Server Error:', data.message);
                     alert(`Error: ${data.message}`);
                 }
             } catch (error) {
                 console.error('Fetch Error:', error);
                 alert('Failed to add to cart. Check console for details.');
+            } finally {
+                addToCartBtn.disabled = false;
+                addToCartBtn.innerHTML = '<span class="cart-icon">🛒</span> Add to Cart Now';
             }
         });
     } else {
@@ -120,7 +117,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Add to Wishlist Functionality
-    // Handles adding a product to the wishlist via AJAX
     const addToWishlistForm = document.getElementById('add-to-wishlist-form');
     const wishlistToast = document.querySelector('#wishlistToast') ? new bootstrap.Toast(document.querySelector('#wishlistToast'), { delay: 3000 }) : null;
     const wishlistToastBody = document.getElementById('wishlistToastBody');
@@ -130,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
         addToWishlistForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const actionUrl = addToWishlistForm.getAttribute('action');
-            console.log(`Attempting wishlist action: url=${actionUrl}`); // Debug log
+            console.log(`Attempting wishlist action: url=${actionUrl}`);
 
             try {
                 const response = await fetch(actionUrl, {
@@ -142,9 +138,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     },
                     body: JSON.stringify({}),
                 });
-                console.log(`Wishlist Response Status: ${response.status}`); // Debug log
                 const data = await response.json();
-                console.log('Wishlist Response Data:', data); // Debug log
+                console.log('Wishlist Response Data:', data);
 
                 if (data.status === 'success') {
                     wishlistToastBody.textContent = data.message;
@@ -159,7 +154,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         addToWishlistBtn.innerHTML = '<i class="fas fa-heart"></i> Add to Wishlist';
                     }
                 } else {
-                    console.error('Wishlist Error:', data.message);
                     alert(`Error: ${data.message}`);
                 }
             } catch (error) {
