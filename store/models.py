@@ -1,9 +1,16 @@
+# store/models.py
+
+import os
 from django.db import models
 from django.utils.text import slugify
 from django.urls import reverse
 from django.conf import settings
 from ckeditor.fields import RichTextField
 import uuid
+
+# Dynamically generate icon choices from static/icons/
+ICON_DIR = os.path.join(settings.STATICFILES_DIRS[0], 'icons')
+ICON_CHOICES = [(f, f) for f in os.listdir(ICON_DIR) if os.path.isfile(os.path.join(ICON_DIR, f))]
 
 class SafeProduct(models.Model):
     name = models.CharField(max_length=200)
@@ -45,6 +52,8 @@ class ProductSpecification(models.Model):
     product = models.ForeignKey(SafeProduct, related_name='specifications', on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     value = models.CharField(max_length=100)
+    icon = models.CharField(max_length=100, choices=ICON_CHOICES, blank=True, null=True,
+                           help_text="Select an icon from the available options.")
 
     class Meta:
         ordering = ['name']
