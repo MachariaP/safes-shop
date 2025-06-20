@@ -15,7 +15,9 @@ ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
 
 # Application definition
 INSTALLED_APPS = [
+    #'django_admin_charts',
     'jazzmin',
+    'diplomat_safes',
     'store',
     'users',
     'payments',
@@ -184,7 +186,15 @@ JAZZMIN_SETTINGS = {
     "site_logo": "img/logo.png",
     "welcome_sign": "Welcome to Diplomat Safes Admin",
     "copyright": "Diplomat Safes Ltd",
-    "search_model": "store.SafeProduct",  # Simplified to one model for now
+    "search_model": [
+        "store.SafeProduct",
+        "users.CustomUser",
+        "core.TeamMember",
+        "core.Solution",
+        "core.Testimonial",
+        "store.StoreLocation",
+        "store.Order",
+    ],
     "topmenu_links": [
         {"name": "Home", "url": "admin:index", "permissions": ["auth.view_user"]},
         {"name": "View Site", "url": "/", "new_window": True},
@@ -193,10 +203,10 @@ JAZZMIN_SETTINGS = {
         {"name": "Support", "url": "https://example.com/support", "new_window": True},
     ],
     "show_sidebar": True,
-    "navigation_expanded": False,  # Collapse sidebar by default for less clutter
-    "hide_apps": [],  # Keep all apps visible
-    "hide_models": [],  # Keep all models visible
-    "order_with_respect_to": ["auth", "users", "store", "core"],  # Custom app order
+    "navigation_expanded": True,
+    "hide_apps": [],
+    "hide_models": [],
+    "order_with_respect_to": ["auth", "users", "store", "core"],
     "icons": {
         "users.CustomUser": "fas fa-user",
         "store.SafeProduct": "fas fa-box",
@@ -214,8 +224,6 @@ JAZZMIN_SETTINGS = {
     "default_icon_children": "fas fa-circle",
     "changeform_format": "horizontal_tabs",
     "show_ui_builder": True,
-    "sidebar_fixed": True,  # Keep sidebar fixed for better navigation
-    "sidebar_nav_compact_style": True,  # Compact sidebar items
 }
 
 
