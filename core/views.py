@@ -5,6 +5,7 @@ from django.contrib import messages
 from store.models import Order, OrderItem
 from .models import TeamMember, Solution, Testimonial, Profile
 
+
 class AboutUsView(TemplateView):
     template_name = 'core/about_us.html'
 
@@ -13,17 +14,20 @@ class AboutUsView(TemplateView):
         context['team_members'] = TeamMember.objects.all()
         return context
 
+
 class ContactView(TemplateView):
     template_name = 'core/contact.html'
 
+
 class SolutionsView(TemplateView):
     template_name = 'core/solutions.html'
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['solutions'] = Solution.objects.all()
         context['testimonials'] = Testimonial.objects.all()
         return context
+
 
 class AccountView(LoginRequiredMixin, TemplateView):
     template_name = 'core/account.html'
@@ -56,7 +60,8 @@ class AccountView(LoginRequiredMixin, TemplateView):
 
         # Get orders with prefetched items
         orders = Order.objects.filter(user=user).prefetch_related(
-            Prefetch('items', queryset=OrderItem.objects.select_related('product'))
+            Prefetch('items', queryset=OrderItem.objects.select_related(
+                'product'))
         ).order_by('-created_at')
 
         context.update({
