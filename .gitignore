@@ -33,3 +33,4 @@ build/
 db.sqlite3
 commit_files.sh
 .env
+venv/
