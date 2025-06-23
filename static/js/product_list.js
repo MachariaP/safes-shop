@@ -1,15 +1,24 @@
-// static/js/product_list.js
 document.addEventListener('DOMContentLoaded', () => {
-    // Card Hover Effect
+    // Card Hover and Touch Effects
     const cards = document.querySelectorAll('.product-card');
     cards.forEach(card => {
+        // Mouse hover effects
         card.addEventListener('mouseenter', () => {
             card.style.transform = 'translateY(-8px)';
-            card.style.boxShadow = '0 15px 40px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.05)';
+            card.style.boxShadow = '0 15px 40px rgba(0, 0, 0, 0.12)';
         });
         card.addEventListener('mouseleave', () => {
             card.style.transform = 'translateY(0)';
-            card.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.03)';
+            card.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.08)';
+        });
+
+        // Touch effects for mobile devices
+        card.addEventListener('touchstart', () => {
+            card.classList.add('hover');
+        });
+        card.addEventListener('touchend', () => {
+            // Remove hover class after a short delay to mimic hover-out
+            setTimeout(() => card.classList.remove('hover'), 1000);
         });
     });
 
