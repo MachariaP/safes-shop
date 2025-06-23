@@ -33,10 +33,12 @@
             {% endif %}
             <div class="social-login">
                 <a href="{% provider_login_url 'google' %}" class="social-btn google">
-                    <i class="fab fa-google"></i> Sign up with Google
+                    <img src="{% static 'images/google_logo.png' %}" alt="Google Logo" class="social-logo">
+                    <span>Sign up with Google</span>
                 </a>
                 <a href="{% provider_login_url 'facebook' %}" class="social-btn facebook">
-                    <i class="fab fa-facebook-f"></i> Sign up with Facebook
+                    <img src="{% static 'images/facebook_logo.png' %}" alt="Facebook Logo" class="social-logo">
+                    <span>Sign up with Facebook</span>
                 </a>
             </div>
             <div class="auth-divider">
