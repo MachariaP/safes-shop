@@ -1,85 +1,58 @@
 # Diplomat Safes E-commerce Platform
 
-A modern e-commerce platform for Diplomat Safes, offering premium security solutions. Built with Django and Bootstrap 5, it provides secure shopping with M-Pesa, Visa, Mastercard payments, and social authentication.
+![Diplomat Safes Logo](static/images/logo.png)
 
-## Features
+Welcome to **Diplomat Safes**, a modern e-commerce platform offering premium security solutions for homes and businesses. Built with **Django 4.2** and **Bootstrap 5.3**, this platform provides a seamless and secure shopping experience with **M-Pesa**, **Visa**, **Mastercard** payments, and social authentication via Google and Facebook.
 
-- 🛒 Browse and search safes with detailed views
-- 🔐 Secure login, signup, and logout with Google/Facebook
-- 💳 Pay via M-Pesa or credit cards
-- 📦 Manage cart and track orders
-- 📱 Responsive design for all devices
-- ✨ Professional UI with password toggles and loading states
+[Visit Live Demo](https://diplomat-safes.example.com) | [Explore Documentation](#installation)
 
-## Screenshots
+---
 
-![Login Page](docs/screenshots/login.png)
-*Login page with social auth and password toggle*
+## ✨ Key Features
 
-![Cart Page](docs/screenshots/cart.png)
-*Cart page with AJAX updates and payment options*
+- 🛒 **Browse & Search Safes**: Discover a wide range of safes with detailed product views and specifications.
+- 🔐 **Secure Authentication**: Login, signup, and logout with Google or Facebook, enhanced with password visibility toggles.
+- 💳 **Flexible Payments**: Pay securely via M-Pesa or credit/debit cards (Visa, Mastercard) using Stripe.
+- 📦 **Cart & Order Management**: Add items to cart, update quantities in real-time with AJAX, and track orders.
+- 📱 **Responsive Design**: Optimized for mobile, tablet, and desktop devices.
+- ⚡ **Enhanced UX**: Features skeleton loading screens, accessibility-focused UI, and smooth touch interactions.
 
-## Technology Stack
+---
+
+## 📸 Screenshots
+
+| **Login Page** | **Cart Page** |
+|----------------|---------------|
+| ![Login Page](docs/screenshots/login.png) | ![Cart Page](docs/screenshots/cart.png) |
+| Secure login with social auth and password toggle | Real-time cart updates with AJAX and payment options |
+
+---
+
+## 🛠️ Technology Stack
 
 - **Backend**: Python 3.10, Django 4.2, PostgreSQL, django-allauth, Celery
 - **Frontend**: Bootstrap 5.3, JavaScript, Font Awesome 6.4
 - **Payments**: Safaricom M-Pesa API, Stripe API
+- **Deployment**: Configurable for Heroku, AWS, or other platforms (see [Deployment](#deployment))
 
-## Code Snippets
+---
 
-### Cart Functionality (`static/js/cart.js`)
+## 🚀 Quick Start
 
-```javascript
-document.addEventListener('DOMContentLoaded', () => {
-    const cart = {
-        async updateCart() {
-            try {
-                const response = await fetch('/store/cart/', { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
-                const data = await response.json();
-                document.getElementById('cart-total').textContent = `Ksh ${data.total.toFixed(2)}`;
-                document.getElementById('cart-count').textContent = data.count;
-            } catch (error) {
-                console.error('Cart update failed:', error);
-            }
-        }
-    };
-    cart.updateCart();
-    document.addEventListener('cartUpdated', () => cart.updateCart());
-});
+### Prerequisites
+- Python 3.10+
+- PostgreSQL 14+
+- Git
+- M-Pesa and Stripe API credentials
+- Google and Facebook OAuth credentials
 
-M-Pesa Payment (payments/views.py)
-python
+### Installation
 
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-import requests
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/MachariaP/safes-shop.git
+   cd safes-shop
 
-@csrf_exempt
-def initiate_mpesa_payment(request):
-    if request.method == 'POST':
-        phone = request.POST.get('phone')
-        amount = request.POST.get('amount')
-        payload = {
-            "BusinessShortCode": settings.MPESA_SHORTCODE,
-            "Amount": amount,
-            "PartyA": phone,
-            "CallBackURL": settings.MPESA_CALLBACK_URL,
-            "TransactionDesc": "Diplomat Safes Purchase"
-        }
-        headers = {'Authorization': f'Bearer {get_mpesa_access_token()}'}
-        response = requests.post(settings.MPESA_STK_PUSH_URL, json=payload, headers=headers)
-        return JsonResponse(response.json())
-    return JsonResponse({'error': 'Invalid request'}, status=400)
-
-Installation
-Prerequisites
-Python 3.10+
-
-PostgreSQL 14+
-
-Git
-
-Setup Steps
 Set Up Virtual Environment:
 bash
 
@@ -92,8 +65,8 @@ bash
 
 pip install -r requirements.txt
 
-Configure Environment:
-Create .env in the project root:
+Configure Environment Variables:
+Create a .env file in the project root:
 ini
 
 SECRET_KEY=your_secret_key_here
@@ -131,17 +104,113 @@ bash
 
 python manage.py collectstatic
 
-Start Server:
+Start the Development Server:
 bash
 
 python manage.py runserver
 
-Access at http://127.0.0.1:8000.
+Access the app at http://127.0.0.1:8000.
 
-License
-MIT License. See LICENSE for details.
-Contact
+ Code Snippets
+Real-time Cart Updates (static/js/cart.js)
+javascript
+
+document.addEventListener('DOMContentLoaded', () => {
+    const cart = {
+        async updateCart() {
+            try {
+                const response = await fetch('/store/cart/', {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
+                document.getElementById('cart-total').textContent = `Ksh ${data.total.toFixed(2)}`;
+                document.getElementById('cart-count').textContent = data.count;
+            } catch (error) {
+                console.error('Cart update failed:', error);
+                document.getElementById('cart-error').textContent = 'Failed to update cart. Please try again.';
+            }
+        }
+    };
+    cart.updateCart();
+    document.addEventListener('cartUpdated', () => cart.updateCart());
+});
+
+M-Pesa Payment Integration (payments/views.py)
+python
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import requests
+from django.conf import settings
+
+@csrf_exempt
+def initiate_mpesa_payment(request):
+    if request.method == 'POST':
+        phone = request.POST.get('phone')
+        amount = request.POST.get('amount')
+        if not phone or not amount:
+            return JsonResponse({'error': 'Missing phone or amount'}, status=400)
+        payload = {
+            "BusinessShortCode": settings.MPESA_SHORTCODE,
+            "Amount": amount,
+            "PartyA": phone,
+            "CallBackURL": settings.MPESA_CALLBACK_URL,
+            "TransactionDesc": "Diplomat Safes Purchase"
+        }
+        headers = {'Authorization': f'Bearer {get_mpesa_access_token()}'}
+        try:
+            response = requests.post(settings.MPESA_STK_PUSH_URL, json=payload, headers=headers)
+            response.raise_for_status()
+            return JsonResponse(response.json())
+        except requests.RequestException as e:
+            return JsonResponse({'error': f'Payment initiation failed: {str(e)}'}, status=500)
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+ Deployment
+To deploy the platform (e.g., on Heroku or AWS):
+Configure a production-ready database (e.g., PostgreSQL on AWS RDS).
+
+Set DEBUG=False in .env and update ALLOWED_HOSTS with your domain.
+
+Use a WSGI server like Gunicorn:
+bash
+
+pip install gunicorn
+gunicorn diplomat_safes.wsgi
+
+Serve static files via a CDN or server (e.g., AWS S3).
+
+Configure environment variables in your hosting platform.
+
+Set up a reverse proxy (e.g., Nginx) for production.
+
+For detailed steps, see DEPLOYMENT.md (create this file if needed).
+ Contributing
+We welcome contributions! To get started:
+Fork the repository.
+
+Create a feature branch (git checkout -b feature/your-feature).
+
+Commit changes (git commit -m "Add your feature").
+
+Push to the branch (git push origin feature/your-feature).
+
+Open a Pull Request.
+
+Please follow our Code of Conduct (CODE_OF_CONDUCT.md) and ensure tests pass:
+bash
+
+python manage.py test
+
+ License
+This project is licensed under the MIT License. See LICENSE for details.
+ Contact
 Email: walburphinehas78@gmail.com (mailto:walburphinehas78@gmail.com)
-Diplomat Safes © 2025 - Premium Security Solutions
 
+GitHub: MachariaP
+
+Website: Diplomat Safes
+
+Diplomat Safes © 2025 - Premium Security Solutions
 
