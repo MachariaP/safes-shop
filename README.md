@@ -25,9 +25,9 @@ Discover a world of security with Diplomat Safes, where innovation meets reliabi
 
 Get a glimpse of the Diplomat Safes experience with these visuals. More screenshots will be added soon to showcase additional pages!
 
-| **Login Page**                          | **Cart Page**                          | **Product Page** (Coming Soon)         | **Checkout Page** (Coming Soon)        |
+| **Login Page**                          | **Cart Page**                          | **Product Page**         | **Checkout Page**        |
 |-----------------------------------------|----------------------------------------|----------------------------------------|----------------------------------------|
-| ![Login Page](docs/screenshots/login.png) | ![Cart Page](docs/screenshots/cart.png) | ![Placeholder](docs/screenshots/checkout.png) | ![Placeholder](docs/screenshots/checkout.png) |
+| ![Login Page](docs/screenshots/login.png) | ![Cart Page](docs/screenshots/cart.png) | ![Placeholder](docs/screenshots/product.png) | ![Placeholder](docs/screenshots/checkout.png) |
 | *Secure login with social auth & password toggle* | *AJAX-powered cart with payment options* | *Detailed product views & specs*       | *Secure payment processing*            |
 
 ---
