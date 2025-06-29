@@ -18,13 +18,59 @@
                         <img src="https://via.placeholder.com/400" alt="No image available" class="product-image" id="mainProductImage">
                     {% endif %}
                 </div>
-                <!-- Image Gallery -->
+                <!-- Image Gallery with Zoom -->
                 <div class="image-gallery px-3 pb-3">
-                    {% if product.image %}
-                        <img src="{{ product.image.url }}" alt="{{ product.name }} Thumbnail" class="gallery-thumb active" data-image="{{ product.image.url }}">
+                    {% if product.additional_images %}
+                        {% for image in product.additional_images.all %}
+                            <img src="{{ image.image.url }}" alt="{{ product.name }} Thumbnail" class="gallery-thumb" data-image="{{ image.image.url }}">
+                        {% endfor %}
                     {% else %}
-                        <img src="https://via.placeholder.com/200" alt="Placeholder Thumbnail" class="gallery-thumb active" data-image="https://via.placeholder.com/200">
+                        <img src="{{ product.image.url }}" alt="{{ product.name }} Thumbnail" class="gallery-thumb active" data-image="{{ product.image.url }}">
                     {% endif %}
+                </div>
+                <!-- Specifications Card -->
+                <div class="spec-card mt-4">
+                    <div class="specs-container">
+                        <h4 class="specs-title">Specifications</h4>
+                        <div class="specs-grid">
+                            {% if product.ivory_color %}
+                                <div class="spec-item">
+                                    <span class="spec-icon anti-theft">
+                                        <img src="{% static 'icons/anti-theft.svg' %}" alt="Color">
+                                    </span>
+                                    <span>Ivory Color: <strong>Yes</strong></span>
+                                </div>
+                            {% endif %}
+                            <div class="spec-item">
+                                <span class="spec-icon dollar-sign">
+                                    <img src="{% static 'icons/dollar-sign.svg' %}" alt="Price">
+                                </span>
+                                <span>Price: <strong>Ksh {{ product.price|floatformat:2 }}</strong></span>
+                            </div>
+                            {% if product.category == 'fireproof' %}
+                                <div class="spec-item">
+                                    <span class="spec-icon fire">
+                                        <img src="{% static 'icons/fire.svg' %}" alt="Fire Rating">
+                                    </span>
+                                    <span>Fire Rating: <strong>Up to 1000°C for 60 min</strong></span>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="product-meta">
+                        <div class="meta-item">
+                            <span class="meta-icon truck">
+                                <img src="{% static 'icons/truck.svg' %}" alt="Shipping">
+                            </span>
+                            <span>Free Shipping & Returns</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-icon shield">
+                                <img src="{% static 'icons/shield.svg' %}" alt="Warranty">
+                            </span>
+                            <span>2-Year Warranty</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -41,39 +87,20 @@
                         </div>
                     {% endif %}
                     <h1 class="product-title">{{ product.name }} - {{ product.category|title }} Safe</h1>
-                    <div class="product-price">Ksh {{ product.price|floatformat:2 }}</div>
+                    <div class="product-price">
+                        Ksh {{ product.price|floatformat:2 }}
+                        {% if product.discount_price %}
+                            <del>Ksh {{ product.discount_price|floatformat:2 }}</del>
+                        {% endif %}
+                    </div>
                     <div class="product-description">
                         {{ product.description|safe }}
-                        <p><strong>Category:</strong> {{ product.category|title }} Safe - Designed for {{ product.category|lower }} use with top-tier security.</p>
+                        <p><strong>Category:</strong> {{ product.category|title }} Safe - Designed for {{ product.category|lower }} use.</p>
+                        {% if product.rating %}
+                            <p><strong>Rating:</strong> ★ {{ product.rating }}/5 ({{ product.review_count }} reviews)</p>
+                        {% endif %}
                     </div>
-                    <div class="specs-container">
-                        <h4 class="specs-title">Specifications</h4>
-                        <div class="specs-grid">
-                            {% if product.ivory_color %}
-                                <div class="spec-item">
-                                    <span class="spec-icon">
-                                        <img src="{% static 'icons/anti-theft.svg' %}" alt="Color" width="20" height="20">
-                                    </span>
-                                    <span>Ivory Color: <strong>Yes</strong></span>
-                                </div>
-                            {% endif %}
-                            <div class="spec-item">
-                                <span class="spec-icon">
-                                    <img src="{% static 'icons/dollar-sign.svg' %}" alt="Price" width="20" height="20">
-                                </span>
-                                <span>Price: <strong>Ksh {{ product.price|floatformat:2 }}</strong></span>
-                            </div>
-                            {% if product.category == 'fireproof' %}
-                                <div class="spec-item">
-                                    <span class="spec-icon">
-                                        <img src="{% static 'icons/fire.svg' %}" alt="Fire Rating" width="20" height="20">
-                                    </span>
-                                    <span>Fire Rating: <strong>Up to 1000°C for 60 min</strong></span>
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                    <form id="add-to-cart-form">
+                    <form id="add-to-cart-form" method="post">
                         {% csrf_token %}
                         <div class="quantity-selector">
                             <span class="quantity-label">Quantity:</span>
@@ -81,7 +108,7 @@
                                 <button type="button" class="quantity-btn" id="decreaseQty">
                                     <i class="fas fa-minus"></i>
                                 </button>
-                                <input type="number" class="quantity-input" id="productQty" value="1" min="1" max="10">
+                                <input type="number" class="quantity-input" id="productQty" name="quantity" value="1" min="1" max="10">
                                 <button type="button" class="quantity-btn" id="increaseQty">
                                     <i class="fas fa-plus"></i>
                                 </button>
@@ -89,33 +116,19 @@
                         </div>
                         <div class="action-buttons">
                             <button type="submit" class="btn btn-primary add-to-cart" id="addToCart" data-slug="{{ product.slug }}">
-                                <span class="cart-icon">🛒</span> Add to Cart Now
+                                <span class="cart-icon">🛒</span> Add to Cart
                             </button>
-                            <button type="button" class="btn btn-outline-secondary" onclick="window.location.href='{% url 'store:product_list' %}'">
+                            <form id="add-to-wishlist-form" method="post" action="{% url 'store:add_to_wishlist' product.slug %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-primary" id="addToWishlist" data-slug="{{ product.slug }}">
+                                    <i class="fas fa-heart"></i> Add to Wishlist
+                                </button>
+                            </form>
+                            <a href="{% url 'store:product_list' %}" class="btn btn-outline-secondary">
                                 <i class="fas fa-eye"></i> View More Products
-                            </button>
+                            </a>
                         </div>
                     </form>
-                    <form id="add-to-wishlist-form" method="POST" action="{% url 'store:add_to_wishlist' product.slug %}">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-outline-primary mt-3" id="addToWishlist" data-slug="{{ product.slug }}">
-                            <i class="fas fa-heart"></i> Add to Wishlist
-                        </button>
-                    </form>
-                    <div class="product-meta">
-                        <div class="meta-item">
-                            <span class="meta-icon">
-                                <img src="{% static 'icons/truck.svg' %}" alt="Shipping" width="20" height="20">
-                            </span>
-                            <span>Free Shipping & Returns</span>
-                        </div>
-                        <div class="meta-item">
-                            <span class="meta-icon">
-                                <img src="{% static 'icons/shield.svg' %}" alt="Warranty" width="20" height="20">
-                            </span>
-                            <span>2-Year Warranty</span>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
