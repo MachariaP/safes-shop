@@ -2,7 +2,7 @@
 
 ![Diplomat Safes Logo](static/images/logo.png)
 
-**Welcome to Diplomat Safes**, your premier destination for top-tier security solutions! This modern e-commerce platform, built with **Django 4.2** and **Bootstrap 5.3**, offers a secure and seamless shopping experience with **M-Pesa**, **Visa**, and **Mastercard** payments, plus social login via **Google** and **Facebook**.
+**Welcome to Diplomat Safes**, your trusted source for cutting-edge security solutions designed for homes, offices, and businesses. This robust e-commerce platform, meticulously crafted with **Django 4.2** and styled using **Bootstrap 5.3**, delivers a secure, intuitive, and responsive shopping experience. Enjoy seamless transactions with support for **M-Pesa** (via Safaricom API), **Visa**, and **Mastercard** (via Stripe), alongside streamlined social authentication through **Google** and **Facebook**. Whether you're a security-conscious individual or a business owner, Diplomat Safes combines premium products with modern technology to meet your needs.
 
 👉 **[Stay Tuned for Live Demo](#live-demo)** | **[Get Started](#installation)**
 
@@ -10,142 +10,52 @@
 
 ## 🎉 Why Choose Diplomat Safes?
 
-- 🛒 **Extensive Product Range**: Browse and search a wide selection of safes with detailed specs.
-- 🔐 **Secure & Easy Access**: Login or sign up with social accounts, featuring password toggles.
-- 💳 **Flexible Payments**: Pay securely with M-Pesa or credit cards via Stripe.
-- 📦 **Smart Shopping**: Real-time cart updates and order tracking.
-- 📱 **Mobile-Friendly**: Perfectly optimized for all devices.
-- ✨ **Modern Design**: Enjoy skeleton loading, accessibility, and smooth touch interactions.
+Discover a world of security with Diplomat Safes, where innovation meets reliability. Our platform offers:
+
+- 🛒 **Extensive Product Range**: Explore a diverse catalog of safes, from compact home models to large commercial units. Each product page includes detailed specifications (e.g., dimensions, weight, fireproofing), high-resolution images, and availability status.
+- 🔐 **Secure & Easy Access**: Sign up or log in effortlessly using Google or Facebook accounts. Enjoy enhanced security with password visibility toggles and two-factor authentication options, ensuring your data remains protected.
+- 💳 **Flexible Payments**: Choose from multiple payment methods, including M-Pesa for local transactions in Kenya, and international options via Visa and Mastercard, processed securely through the Stripe API with real-time transaction updates.
+- 📦 **Smart Shopping**: Add items to your cart with instant AJAX updates, track order statuses, and receive email notifications at every step. Manage your wishlist and review past purchases with ease.
+- 📱 **Mobile-Friendly**: Fully responsive design optimized for smartphones, tablets, and desktops, with touch-friendly interfaces and fast load times across all devices.
+- ✨ **Modern Design**: Experience a user-friendly interface with skeleton loading screens for faster perceived performance, accessibility features (e.g., keyboard navigation, screen reader support), and smooth touch interactions for mobile users.
 
 ---
 
 ## 📷 Screenshots
 
-| **Login Page**                          | **Cart Page**                          |
-|-----------------------------------------|----------------------------------------|
-| ![Login Page](docs/screenshots/login.png) | ![Cart Page](docs/screenshots/cart.png) |
-| *Secure login with social auth & toggle* | *AJAX-powered cart with payment options* |
+Get a glimpse of the Diplomat Safes experience with these visuals. More screenshots will be added soon to showcase additional pages!
+
+| **Login Page**                          | **Cart Page**                          | **Product Page** (Coming Soon)         | **Checkout Page** (Coming Soon)        |
+|-----------------------------------------|----------------------------------------|----------------------------------------|----------------------------------------|
+| ![Login Page](docs/screenshots/login.png) | ![Cart Page](docs/screenshots/cart.png) | ![Placeholder](https://via.placeholder.com/300x200?text=Product+Page) | ![Placeholder](https://via.placeholder.com/300x200?text=Checkout+Page) |
+| *Secure login with social auth & password toggle* | *AJAX-powered cart with payment options* | *Detailed product views & specs*       | *Secure payment processing*            |
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Backend**: Python 3.10, Django 4.2, PostgreSQL, django-allauth, Celery
-- **Frontend**: Bootstrap 5.3, JavaScript, Font Awesome 6.4
-- **Payments**: Safaricom M-Pesa API, Stripe API
+Our platform is built on a powerful and scalable technology stack to ensure reliability and performance:
+
+- **Backend**:
+  - **Python 3.10**: The core programming language for robust server-side logic.
+  - **Django 4.2**: A high-level framework providing ORM, authentication, and admin interfaces.
+  - **PostgreSQL**: A reliable, open-source database for storing product data, orders, and user information.
+  - **django-allauth**: Handles social authentication and local account management.
+  - **Celery**: Manages asynchronous tasks like order processing and email notifications.
+- **Frontend**:
+  - **Bootstrap 5.3**: Provides a responsive, mobile-first CSS framework with pre-built components.
+  - **JavaScript**: Enables dynamic features like real-time cart updates and interactive elements.
+  - **Font Awesome 6.4**: Offers a wide range of icons for a polished UI.
+- **Payments**:
+  - **Safaricom M-Pesa API**: Integrates local mobile payment solutions with STK push functionality.
+  - **Stripe API**: Supports international credit and debit card transactions with fraud protection.
+- **Deployment**:
+  - Compatible with platforms like Heroku, AWS, and Render, with static files served via a CDN or S3 for optimal performance.
 
 ---
 
 ## 🚀 Live Demo
 
-The full platform is under deployment. Check back soon for the live demo at [Diplomat Safes](https://diplomat-safes.herokuapp.com) (coming soon)!
+The full Diplomat Safes platform is currently under deployment to ensure a seamless launch. We are working to bring you a live experience soon! Check back for updates or follow our progress. The anticipated live demo will be available at [Diplomat Safes](https://diplomat-safes.herokuapp.com) (coming soon!). In the meantime, explore the code and set up a local instance using the instructions below.
 
 ---
-
-## 🛠️ Installation
-
-### Prerequisites
-- Python 3.10+
-- PostgreSQL 14+
-- Git
-- API credentials (M-Pesa, Stripe, Google, Facebook)
-
-### Steps
-1. **Clone the Repo**:
-   ```bash
-   git clone https://github.com/MachariaP/safes-shop.git
-   cd safes-shop
-
-Set Up Environment:
-bash
-
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-venv\Scripts\activate     # Windows
-pip install -r requirements.txt
-
-Configure:
-Create .env with your API keys (see Environment (#environment)).
-
-Run Migrations:
-bash
-
-python manage.py migrate
-
-Start Server:
-bash
-
-python manage.py runserver
-
-Visit http://127.0.0.1:8000.
-
-Environment
-ini
-
-SECRET_KEY=your_secret_key
-DEBUG=True
-ALLOWED_HOSTS=localhost,127.0.0.1
-DB_NAME=diplomat_safes
-DB_USER=your_db_user
-DB_PASSWORD=your_db_password
-MPESA_CONSUMER_KEY=your_mpesa_key
-...
-
- Code Highlights
-Cart Update (static/js/cart.js)
-javascript
-
-document.addEventListener('DOMContentLoaded', () => {
-    const cart = {
-        async updateCart() {
-            try {
-                const response = await fetch('/store/cart/', { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
-                const data = await response.json();
-                document.getElementById('cart-total').textContent = `Ksh ${data.total.toFixed(2)}`;
-                document.getElementById('cart-count').textContent = data.count;
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-    };
-    cart.updateCart();
-    document.addEventListener('cartUpdated', cart.updateCart);
-});
-
-M-Pesa Payment (payments/views.py)
-python
-
-@csrf_exempt
-def initiate_mpesa_payment(request):
-    if request.method == 'POST':
-        phone = request.POST.get('phone')
-        amount = request.POST.get('amount')
-        payload = {
-            "BusinessShortCode": settings.MPESA_SHORTCODE,
-            "Amount": amount,
-            "PartyA": phone,
-            "CallBackURL": settings.MPESA_CALLBACK_URL
-        }
-        headers = {'Authorization': f'Bearer {get_mpesa_access_token()}'}
-        response = requests.post(settings.MPESA_STK_PUSH_URL, json=payload, headers=headers)
-        return JsonResponse(response.json())
-    return JsonResponse({'error': 'Invalid request'}, status=400)
-
- Contribute
-Fork this repo.
-
-Create a branch (git checkout -b feature/new-feature).
-
-Commit changes (git commit -m "Add new feature").
-
-Push and open a PR.
-
- License
-MIT License (LICENSE)
- Contact
-Email: walburphinehas78@gmail.com (mailto:walburphinehas78@gmail.com)
-
-GitHub: MachariaP
-
-© 2025 Diplomat Safes - Premium Security Solutions
-
