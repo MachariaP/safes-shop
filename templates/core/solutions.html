@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Security Solutions - Diplomat Safes{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/solutions.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="solutions-container">
+    <!-- Hero Section -->
+    <section class="solutions-hero text-center py-5" aria-labelledby="hero-title">
+        <div class="container">
+            <h1 id="hero-title" class="display-4 fw-bold mb-4">Security Solutions</h1>
+            <p class="lead mb-4">Protecting What Matters Most</p>
+            <div class="divider mx-auto"></div>
+            <p class="mt-4">Explore our range of innovative security solutions designed to safeguard your valuables, from home to enterprise.</p>
+        </div>
+    </section>
+
+    <!-- Solutions Navigation -->
+    <section class="solutions-nav py-4 bg-light" aria-labelledby="nav-title">
+        <div class="container">
+            <h2 id="nav-title" class="visually-hidden">Solutions Navigation</h2>
+            <div class="d-flex flex-wrap justify-content-center" id="solutionsNav" role="tablist">
+                {% if solutions %}
+                    {% for solution in solutions|dictsort:"title" %}
+                        <a href="#{{ solution.slug }}" class="btn btn-outline-primary mx-2 my-2 solution-nav-btn" role="tab" aria-selected="false">
+                            <i class="{{ solution.icon|default:'fas fa-shield-alt' }} me-2"></i>{{ solution.title }}
+                        </a>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-center text-muted">No solutions available at this time.</p>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Solutions Grid -->
+    <section class="solutions-grid py-5" aria-labelledby="solutions-title">
+        <div class="container">
+            <h2 id="solutions-title" class="visually-hidden">Our Solutions</h2>
+            <div class="solutions-grid-container">
+                {% if solutions %}
+                    {% for solution in solutions|dictsort:"title" %}
+                        <div class="solution-card-wrapper">
+                            <article class="solution-card" id="{{ solution.slug }}" aria-labelledby="{{ solution.slug }}-title">
+                                <figure class="solution-image">
+                                    <img src="{% static 'images/safe-placeholder.jpg' %}" data-src="{% if solution.image_url %}{{ solution.image_url }}{% else %}/static/images/safe-placeholder.jpg{% endif %}" alt="{{ solution.title }} Safe" class="lightbox-trigger" loading="lazy">
+                                    <figcaption class="visually-hidden">{{ solution.title }} Safe Image</figcaption>
+                                </figure>
+                                <div class="solution-icon">
+                                    <i class="{{ solution.icon|default:'fas fa-shield-alt' }}"></i>
+                                </div>
+                                <h3 id="{{ solution.slug }}-title">{{ solution.title|default:'Unnamed Solution' }}</h3>
+                                <p>{{ solution.description|default:'No description available.'|truncatewords:20 }}</p>
+                                <div class="solution-features" role="region" aria-labelledby="{{ solution.slug }}-features">
+                                    <h4 id="{{ solution.slug }}-features" class="feature-toggle">Key Features:</h4>
+                                    <ul aria-hidden="true">
+                                        {% if solution.features %}
+                                            {% for feature in solution.features|slice:":5" %}
+                                                <li><i class="fas fa-check-circle text-success me-2"></i>{{ feature }}</li>
+                                            {% endfor %}
+                                        {% else %}
+                                            <li><i class="fas fa-check-circle text-success me-2"></i>No features listed.</li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                                <a href="{% url 'store:product_list' %}?category={{ solution.slug|default:'default' }}" class="btn btn-primary solution-btn">
+                                    Explore Solutions <i class="fas fa-arrow-right ms-2"></i>
+                                </a>
+                            </article>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-12 text-center">
+                        <p class="text-muted">No solutions are currently available. Please check back later.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Security Features -->
+    <section class="security-features py-5 bg-light" aria-labelledby="features-title">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 id="features-title" class="fw-bold mb-3">Advanced Security Features</h2>
+                <div class="divider mx-auto"></div>
+                <p class="mt-4">Our safes incorporate cutting-edge technology for ultimate protection.</p>
+            </div>
+            <div class="features-grid">
+                <figure class="feature-card">
+                    <div class="feature-icon bg-primary">
+                        <i class="fas fa-fingerprint"></i>
+                    </div>
+                    <figcaption>
+                        <h4>Biometric Access</h4>
+                        <p>Secure fingerprint recognition for keyless entry.</p>
+                    </figcaption>
+                </figure>
+                <figure class="feature-card">
+                    <div class="feature-icon bg-success">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <figcaption>
+                        <h4>Fire Protection</h4>
+                        <p>Certified fire resistance up to 120 minutes at 1850°F.</p>
+                    </figcaption>
+                </figure>
+                <figure class="feature-card">
+                    <div class="feature-icon bg-warning">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <figcaption>
+                        <h4>Multi-Lock System</h4>
+                        <p>Multiple locking mechanisms for enhanced security.</p>
+                    </figcaption>
+                </figure>
+                <figure class="feature-card">
+                    <div class="feature-icon bg-danger">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <figcaption>
+                        <h4>Tamper Alerts</h4>
+                        <p>Real-time notifications for unauthorized access attempts.</p>
+                    </figcaption>
+                </figure>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="testimonials py-5" aria-labelledby="testimonials-title">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 id="testimonials-title" class="fw-bold mb-3">Trusted by Professionals</h2>
+                <div class="divider mx-auto"></div>
+            </div>
+            <div class="row g-4">
+                {% for testimonial in testimonials %}
+                <div class="col-md-4">
+                    <article class="testimonial-card">
+                        <div class="rating mb-3">
+                            {% for i in "12345" %}
+                                {% if forloop.counter0 < testimonial.rating|floatformat:0 %}
+                                    <i class="fas fa-star text-warning" aria-label="Star"></i>
+                                {% elif forloop.counter0 < testimonial.rating %}
+                                    <i class="fas fa-star-half-alt text-warning" aria-label="Half star"></i>
+                                {% else %}
+                                    <i class="far fa-star text-warning" aria-label="Empty star"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <blockquote class="mb-4">"{{ testimonial.quote }}"</blockquote>
+                        <div class="client-info">
+                            <h5 class="mb-0">{{ testimonial.name }}</h5>
+                            <p class="mb-0">{{ testimonial.title }}</p>
+                        </div>
+                    </article>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="solutions-cta py-5 text-center" aria-labelledby="cta-title">
+        <div class="container">
+            <h2 id="cta-title" class="fw-bold mb-4">Secure Your World Today</h2>
+            <p class="lead mb-4">Contact our experts for a free consultation.</p>
+            <div class="d-flex flex-wrap justify-content-center">
+                <a href="{% url 'core:contact' %}" class="btn btn-light btn-lg mx-2 my-2">
+                    <i class="fas fa-envelope me-2"></i> Contact Us
+                </a>
+                <a href="tel:+254712345678" class="btn btn-outline-light btn-lg mx-2 my-2">
+                    <i class="fas fa-phone-alt me-2"></i> Call +254 712 345 678
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lightbox Container -->
+    <div class="lightbox" role="dialog" aria-label="Image Lightbox" tabindex="-1">
+        <img src="" alt="" class="lightbox-image">
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/solutions.js' %}"></script>
+{% endblock %}
